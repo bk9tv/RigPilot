@@ -1,0 +1,20 @@
+# PC-specific profiles, device IDs, logs and rollback files
+/Daten/
+/Pruefung/
+/PC-Sicherung/
+/RigPilot-Umzug-*.zip
+# Local operational notes are not part of the public source repository.
+/AGENTS.md
+/UEBERGABE.md
+/UEBERNAHME.md
+
+# Build artifacts are distributed separately from the source repository
+*.exe
+*.pdb
+*.msi
+/bin/
+/obj/
+/Distribution/
+*.tmp
+*.bak
+.vs/

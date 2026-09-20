@@ -1,0 +1,49 @@
+RIGPILOT - INSTALLATION UND UPDATE
+=================================
+
+WINDOWS-INSTALLER
+RigPilot-<Version>-Setup-x64.exe installiert fuer den aktuellen Benutzer.
+Standardordner: %LOCALAPPDATA%\Programs\RigPilot. Ein Startmenue-Eintrag
+wird angelegt; eine Desktop-Verknuepfung ist optional. Kein Autostart.
+Die App wird nach dem Setup nicht automatisch gestartet.
+
+Bei einem Update RigPilot schliessen und einen laufenden Monitorwechsel
+einschliesslich Rueckstellung abwarten. Vorher den bisherigen Anwendungs-
+ordner mit Daten sichern. Setup erneut starten; der bestehende Installations-
+ordner wird wiederverwendet. Daten wird weder geliefert noch ueberschrieben.
+
+Bei Wechsel von der portablen Ausgabe im Setup den bisherigen beschreibbaren
+RigPilot-Ordner waehlen. Alternativ nach Sicherung den vorhandenen Daten-
+Ordner bei geschlossener App in die neue Installation kopieren. Nicht zwei
+unterschiedliche Daten-Ordner ungeprueft zusammenfuehren oder ersetzen.
+
+Deinstallation ueber Windows > Installierte Apps entfernt Programm und
+Verknuepfungen. Die persoenlichen Daten bleiben im Anwendungsordner erhalten.
+
+PORTABLE AUSGABE / MANUELLES UPDATE
+
+1. ZIP in einen separaten Ordner entpacken.
+2. RigPilot auf dem SimRig-PC schliessen. Einen laufenden Monitorwechsel
+   einschliesslich Rueckstellung zuerst abschliessen lassen.
+3. Den bisherigen RigPilot-Ordner inklusive Daten als Sicherung kopieren.
+4. Nur RigPilot.exe und die beiliegenden Text-/Versionsdateien in den
+   bisherigen Anwendungsordner kopieren und die vorhandenen Dateien ersetzen.
+5. Den bestehenden Ordner Daten unbedingt erhalten. Das Update-Paket
+   enthaelt absichtlich keine Profile oder Geraeteeinstellungen.
+6. RigPilot starten und die vorhandenen Programme, Gruppen und Setups pruefen.
+   Audio, Monitore, Rueckstellung und Sim-Hardware auf diesem PC testen.
+
+Neueinrichtung: In einen beschreibbaren Ordner entpacken und RigPilot.exe
+starten. Daten wird daneben angelegt. Keine Installation erforderlich.
+
+Rueckkehr: RigPilot schliessen und die gesicherte alte EXE wieder einsetzen.
+Falls auch Daten wiederhergestellt werden muessen, den aktuellen Daten-Ordner
+zuerst separat sichern. Neuere Einstellungen nicht ungeprueft ueberschreiben.
+
+VERSION.json nennt die genaue Version, Build-ID, Testanzahl und SHA256-Werte.
+SHA256SUMS.txt prueft EXE, ZIP und Setup. Die Datei .zip.sha256 neben dem ZIP
+prueft ebenfalls das gesamte Archiv. Zum Vergleich:
+Get-FileHash -LiteralPath 'PFAD-ZUM-PAKET.zip' -Algorithm SHA256
+
+EXE und Setup sind nicht digital signiert. Die automatischen Tests ersetzen keine
+Hardwarepruefung auf dem SimRig-PC.

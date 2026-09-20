@@ -1,0 +1,109 @@
+RIGPILOT 1.1 – DEIN SETUP. EIN KLICK.
+==================================
+
+Start: RigPilot.exe doppelt anklicken. Keine Installation nötig.
+Den gesamten RigPilot-Ordner zusammen lassen: Einstellungen und Sicherungen
+liegen im Unterordner Daten. Die App benötigt Windows 11 x64 und die dort
+vorhandene .NET-Framework-4.8-Laufzeit. Die EXE ist nicht digital signiert.
+
+ERSTE SCHRITTE
+1. Unter Programme die gefundenen Programme prüfen. Mit Erkennen lassen sich
+   weitere Einträge aus dem Startmenü übernehmen. Alternativ eine EXE oder
+   Verknüpfung hinzufügen. Jedes Programm hat einen eigenen Startknopf.
+2. Simracing und Gaming sind als erste Gruppen vorbereitet, soweit die
+   jeweiligen Anwendungen im Startmenü gefunden wurden. Bearbeiten öffnet
+   Programmauswahl, Reihenfolge, Pausen, Audio und Monitor-Setup.
+3. Audio und Monitore sind in neuen Gruppen zunächst auf unverändert gesetzt.
+   Die gewünschten Geräte bzw. gespeicherten Setups bewusst auswählen.
+4. Prüfen kontrolliert Programmpfade und das Monitor-Setup ohne Umschalten.
+   Bei einem Monitorwechsel werden Audiogeräte erst danach geprüft, damit
+   z. B. HDMI-Audio Zeit hat, verfügbar zu werden.
+5. Starten: Monitor-Setup anwenden und bestätigen, Audio setzen, Programme
+   nacheinander starten. Die Pause gilt jeweils VOR dem betreffenden Start.
+
+AUTOSTART
+Die Schalter verwalten klassische Run-/Run32-Registry-Einträge und Dateien
+in den Autostart-Ordnern. Die Originaleinträge bleiben erhalten. Die App
+ändert den StartupApproved-Status, wie ihn Windows für diese Einträge führt.
+Unbekannte Statuswerte werden angezeigt und bleiben schreibgeschützt.
+Änderungen gelten beim nächsten Windows-Login. Laufende Apps werden weder
+beendet noch durch das Einschalten sofort gestartet; dafür gibt es ▶.
+
+Vor jedem Eingriff wird eine JSON-Sicherung des vorherigen Zustands angelegt.
+Sicherung wiederherstellen lädt sie und schützt zwischenzeitliche Änderungen.
+Einträge für alle Benutzer benötigen eine Windows-Admin-Bestätigung (UAC).
+Nur der kleine Änderungsvorgang wird erhöht, die Haupt-App bleibt normal.
+Die App startet sich nicht automatisch mit Windows.
+
+Nicht enthalten: Aufgabenplanung, Dienste, RunOnce, herstellerspezifische
+Starter, Store-/MSIX-StartupTasks und Windows' Wiederöffnung von Apps nach
+einer Anmeldung. Über Windows ↗ lassen sich weitere Autostarts verwalten.
+Einige Apps setzen ihren eigenen Autostart später selbst wieder zurück.
+
+STARTGRUPPEN UND PROGRAMME
+Gruppen und Programme lassen sich hinzufügen, bearbeiten und entfernen.
+Programme dürfen in mehreren Gruppen vorkommen. Die Reihenfolge lässt sich
+mit den Pfeilen ändern. Pausen: 0 bis 300 Sekunden vor jedem Programm.
+EXE, LNK, URL-Dateien sowie Steam-/Epic-Launcher-URLs werden unterstützt.
+Beim Import aus dem Startmenü werden EXE-Ziele nach Möglichkeit aufgelöst.
+Erkennung bereits laufender Programme erfolgt über den vollständigen
+EXE-Pfad. Bei Verknüpfungen, Launcher-URLs und geschützten Prozessen kann
+diese Erkennung eingeschränkt sein. Dann entscheidet die jeweilige App.
+Die Startmeldung bestätigt die Übergabe an Windows, keine Betriebsbereitschaft
+einer Hardware oder eines Spiels. Für Sim-Tools ggf. längere Pausen einstellen.
+Abbrechen beendet weitere Starts, nicht bereits gestartete Anwendungen.
+
+AUDIO
+Aktive Wiedergabe- und Aufnahmegeräte werden angezeigt. Auswählen setzt
+Standard, Multimedia und Kommunikation für die betreffende Geräteart.
+Ein Gruppenprofil kann Wiedergabe und Mikrofon unabhängig voneinander wählen.
+Das Umschalten verwendet die in Windows vorhandene, nicht öffentlich
+dokumentierte PolicyConfig-Schnittstelle. Windows-Updates können deren
+Verhalten ändern. Fehler werden angezeigt und im Protokoll festgehalten.
+Anwendungen mit einer fest ausgewählten Audioquelle behalten ihre Einstellung.
+Nicht enthalten: Lautstärke, EQ, pro App zugewiesene Geräte oder ein Audiomixer.
+
+MONITORE
+In den Windows-Anzeigeeinstellungen das gewünschte Setup einrichten:
+aktive Bildschirme, Hauptanzeige, Position, Auflösung, Ausrichtung und Hz.
+Danach unter Monitore > Aktuelles Setup speichern einen Namen vergeben,
+z. B. Schreibtisch oder Simrig. Für das zweite Setup wiederholen.
+Die Auswahl wird in Startgruppen verfügbar und kann direkt angewendet werden.
+Gespeichert wird der aktive Desktop-Zustand. Nicht gespeicherte Displays
+werden beim Anwenden nicht aktiviert. Fehlende Zielmonitore stoppen den Wechsel.
+
+Nach dem Umschalten innerhalb von 25 Sekunden auf Ja, beibehalten klicken.
+Die 25 Sekunden beginnen erst, wenn der Bestätigungsdialog sichtbar ist.
+Ohne Bestätigung wird zurückgeschaltet. Ein unabhängiger Wächter verwendet
+dieselbe Frist, auch bei einem Absturz der Oberfläche. Hängt der Wechsel
+schon vor dem Dialog, greift die Rückkehr nach spätestens 45 Sekunden.
+Bei geänderten Anschlüssen oder einem Treiberfehler
+kann auch die Rückkehr scheitern; Windows-Anzeigeeinstellungen helfen dann.
+
+Nicht gespeichert: HDR, Windows-DPI-Skalierung, Farbraum, ICC-Profile,
+NVIDIA-Surround-Konfiguration und VR-/HMD-Einstellungen. Pimax lässt sich
+als Programm starten; die Brillenkonfiguration bleibt in der Pimax-Software.
+
+DATEN, SICHERUNGEN, PROTOKOLL
+Daten\profile.json: Programme, Gruppen und Monitor-Snapshots.
+Daten\profile.json.bak: vorherige Version der Profildatei.
+Daten\Autostart-Sicherungen: ursprüngliche Zustände jedes Schalters.
+Daten\Monitor-Rueckkehr: Zustände vor einem Monitorwechsel.
+Daten\protokoll.txt: Startmeldungen und Fehlermeldungen.
+Die App sendet keine Daten und verwendet keinen Hintergrunddienst.
+Zum Sichern den ganzen RigPilot-Ordner kopieren. Maschinengebundene Geräte-
+und Programmpfade auf einem anderen PC neu auswählen.
+
+ENTWICKLUNG
+Quellcode im Ordner src. build.ps1 kompiliert mit dem Windows-C#-Compiler.
+RigPilot.exe --diagnose "C:\Pfad\diagnose.json" liest Geräte und validiert
+das aktuelle Monitor-Setup, ohne Audio, Monitore oder Autostart umzustellen.
+RigPilot.exe --self-test "C:\Pfad\Testordner" prüft Datenformat und Kernlogik.
+Die internen Optionen --startup, --restore-startup und --guard werden nur
+von der Oberfläche für einzeln angeforderte Aktionen verwendet.
+
+TECHNISCHE REFERENZEN
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setdisplayconfig
+https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys
+https://github.com/tartakynov/audioswitch/blob/master/IPolicyConfig.h
