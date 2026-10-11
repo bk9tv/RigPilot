@@ -42,10 +42,10 @@ if ($testReport.Count -eq 0 -or @($testReport | Where-Object { $_ -notmatch '^PA
 $testReport | Write-Output
 
 # Explicit allowlist: never ship profiles, logs, device IDs, or the migration backup.
-foreach ($fileName in @('ANLEITUNG.txt', 'UPDATE.txt')) {
+foreach ($fileName in @('ANLEITUNG.txt', 'GUIDE.en.txt', 'UPDATE.txt', 'UPDATE.en.txt')) {
     Copy-Item -LiteralPath (Join-Path $projectRoot $fileName) -Destination (Join-Path $payloadDirectory $fileName)
 }
-$files = @(foreach ($fileName in @('RigPilot.exe', 'ANLEITUNG.txt', 'UPDATE.txt')) {
+$files = @(foreach ($fileName in @('RigPilot.exe', 'ANLEITUNG.txt', 'GUIDE.en.txt', 'UPDATE.txt', 'UPDATE.en.txt')) {
     $filePath = Join-Path $payloadDirectory $fileName
     [ordered]@{
         Name = $fileName

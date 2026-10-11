@@ -9,7 +9,7 @@ namespace RigPilot {
         public string Name;
         public int Flow;
         public bool IsDefault;
-        public override string ToString() { return Name + (IsDefault ? "  ·  Standard" : ""); }
+        public override string ToString() { return Name + (IsDefault ? L.T("  ·  Standard") : ""); }
     }
     [StructLayout(LayoutKind.Sequential)] public struct PropertyKey { public Guid Format; public uint Id; }
     [StructLayout(LayoutKind.Explicit, Size = 24)] public struct PropVariant {
@@ -77,12 +77,12 @@ namespace RigPilot {
             return result.OrderByDescending(x => x.IsDefault).ThenBy(x => x.Name).ToList();
         }
         public static void SetDefault(string id, int flow) {
-            if (!List(flow).Any(x => x.Id == id)) throw new InvalidOperationException("Das ausgewählte Audiogerät ist nicht verbunden oder deaktiviert.");
+            if (!List(flow).Any(x => x.Id == id)) throw new InvalidOperationException(L.T("Das ausgewählte Audiogerät ist nicht verbunden oder deaktiviert."));
             var previous = new string[] { Default(flow, 0), Default(flow, 1), Default(flow, 2) };
             IPolicyConfig policy = (IPolicyConfig)new PolicyClient();
             try {
                 for (int role = 0; role < 3; role++) Marshal.ThrowExceptionForHR(policy.SetDefaultEndpoint(id, role));
-                for (int role = 0; role < 3; role++) if (Default(flow, role) != id) throw new InvalidOperationException("Windows hat die Audioauswahl nicht übernommen.");
+                for (int role = 0; role < 3; role++) if (Default(flow, role) != id) throw new InvalidOperationException(L.T("Windows hat die Audioauswahl nicht übernommen."));
             } catch {
                 for (int role = 0; role < 3; role++) if (!String.IsNullOrEmpty(previous[role])) policy.SetDefaultEndpoint(previous[role], role);
                 throw;

@@ -1,0 +1,50 @@
+RIGPILOT - INSTALLATION AND UPDATES
+=================================
+
+WINDOWS INSTALLER
+RigPilot-<Version>-Setup-x64.exe installs for the current user.
+Default folder: %LOCALAPPDATA%\Programs\RigPilot. A Start menu entry is
+created; a desktop shortcut is optional. No automatic Windows startup is added.
+The app does not launch automatically after installation.
+The installer offers German and English. Select the app's interface language
+separately using Sprache / Language at the bottom of the sidebar.
+
+Before updating, close RigPilot and allow any display change, including
+recovery, to finish. Back up the existing application folder, including Daten.
+Run setup again; it reuses the existing installation folder. Daten is neither
+included in the package nor overwritten.
+
+To switch from the portable edition, choose the existing writable RigPilot
+folder in setup. Alternatively, after backing up and closing the app, copy
+the existing Daten folder into the new installation. Do not merge or replace
+two different Daten folders without checking their contents.
+
+Uninstalling through Windows > Installed apps removes the application and
+shortcuts. Personal data remains in the application folder.
+
+PORTABLE EDITION / MANUAL UPDATE
+1. Extract the ZIP into a separate folder.
+2. Close RigPilot on the target PC. Allow any display change, including
+   recovery, to finish first.
+3. Back up the existing RigPilot folder, including Daten.
+4. Copy only RigPilot.exe and the included text/version files into the existing
+   application folder, replacing those files.
+5. Keep the existing Daten folder. The update package intentionally contains
+   no profiles or device settings.
+6. Launch RigPilot and check the existing programs, groups and setups.
+   Test audio, displays, recovery and any sim hardware on this PC.
+
+Fresh setup: extract into a writable folder and launch RigPilot.exe.
+Daten is created alongside the executable. No installation is required.
+
+Rollback: close RigPilot and restore the backed-up executable. If data also
+needs restoring, first back up the current Daten folder separately. Do not
+overwrite newer settings without checking them.
+
+VERSION.json lists the exact version, build ID, test count and SHA256 hashes.
+SHA256SUMS.txt covers the EXE, ZIP and setup. The .zip.sha256 file next to the
+ZIP also covers the entire archive. To compare:
+Get-FileHash -LiteralPath 'PATH-TO-PACKAGE.zip' -Algorithm SHA256
+
+The EXE and setup are not digitally signed. Automated tests do not replace
+hardware testing on the target PC.

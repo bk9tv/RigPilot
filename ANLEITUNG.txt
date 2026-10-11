@@ -1,10 +1,18 @@
-RIGPILOT 1.1 – DEIN SETUP. EIN KLICK.
+RIGPILOT 1.2 – DEIN SETUP. EIN KLICK.
 ==================================
 
 Start: RigPilot.exe doppelt anklicken. Keine Installation nötig.
 Den gesamten RigPilot-Ordner zusammen lassen: Einstellungen und Sicherungen
 liegen im Unterordner Daten. Die App benötigt Windows 11 x64 und die dort
 vorhandene .NET-Framework-4.8-Laufzeit. Die EXE ist nicht digital signiert.
+
+SPRACHE
+Unten in der Seitenleiste unter Sprache / Language Deutsch oder English
+auswählen. Die Oberfläche wechselt sofort und merkt sich die Auswahl.
+Eigene Programm-, Gruppen- und Gerätenamen, Beschreibungen, Pfade und
+vorhandene Profile bleiben erhalten. Neue Gruppen verwenden die Sprache,
+die beim Anlegen ausgewählt ist. Windows-Dialoge sowie Geräte- und
+Treibermeldungen richten sich nach der Windows-Sprache.
 
 ERSTE SCHRITTE
 1. Unter Programme die gefundenen Programme prüfen. Mit Erkennen lassen sich
@@ -87,6 +95,7 @@ als Programm starten; die Brillenkonfiguration bleibt in der Pimax-Software.
 DATEN, SICHERUNGEN, PROTOKOLL
 Daten\profile.json: Programme, Gruppen und Monitor-Snapshots.
 Daten\profile.json.bak: vorherige Version der Profildatei.
+Daten\language.json: Sprache der Oberfläche (getrennt von den Profilen).
 Daten\Autostart-Sicherungen: ursprüngliche Zustände jedes Schalters.
 Daten\Monitor-Rueckkehr: Zustände vor einem Monitorwechsel.
 Daten\protokoll.txt: Startmeldungen und Fehlermeldungen.

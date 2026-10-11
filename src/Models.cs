@@ -22,8 +22,8 @@ namespace RigPilot {
     }
     public class LaunchGroup {
         public string Id = Guid.NewGuid().ToString("N");
-        public string Name = "Neue Gruppe";
-        public string Description = "Dein Setup auf Knopfdruck.";
+        public string Name = L.T("Neue Gruppe");
+        public string Description = L.T("Dein Setup auf Knopfdruck.");
         public string OutputId = "";
         public string InputId = "";
         public string DisplayId = "";
@@ -52,7 +52,7 @@ namespace RigPilot {
             if (!File.Exists(Config)) return new Settings();
             Settings result = Read<Settings>(Config);
             if (result == null || result.Version != 1 || result.Programs == null || result.Groups == null || result.Displays == null)
-                throw new InvalidDataException("Die Profildatei ist ungültig. Eine Sicherung liegt unter profile.json.bak. Die Datei wurde nicht überschrieben.");
+                throw new InvalidDataException(L.T("Die Profildatei ist ungültig. Eine Sicherung liegt unter profile.json.bak. Die Datei wurde nicht überschrieben."));
             return result;
         }
         public static void Save(Settings data) { Write(Config, data); }
@@ -66,7 +66,7 @@ namespace RigPilot {
             string file = s, args = "";
             if (s.StartsWith("\"")) {
                 int end = s.IndexOf('"', 1);
-                if (end < 1) throw new InvalidDataException("Der Programmpfad enthält ein offenes Anführungszeichen.");
+                if (end < 1) throw new InvalidDataException(L.T("Der Programmpfad enthält ein offenes Anführungszeichen."));
                 file = s.Substring(1, end - 1); args = s.Substring(end + 1).Trim();
             } else if (!File.Exists(s)) {
                 int end = s.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
@@ -79,9 +79,9 @@ namespace RigPilot {
             string file = Environment.ExpandEnvironmentVariables(item.FileName);
             Uri uri;
             bool protocol = Uri.TryCreate(file, UriKind.Absolute, out uri) && !uri.IsFile && (uri.Scheme == "steam" || uri.Scheme == "com.epicgames.launcher");
-            if (!protocol && !File.Exists(file)) throw new FileNotFoundException(item.Name + ": Programm oder Verknüpfung fehlt.", file);
+            if (!protocol && !File.Exists(file)) throw new FileNotFoundException(item.Name + L.T(": Programm oder Verknüpfung fehlt."), file);
             if (!String.IsNullOrWhiteSpace(item.WorkingDirectory) && !Directory.Exists(Environment.ExpandEnvironmentVariables(item.WorkingDirectory)))
-                throw new DirectoryNotFoundException(item.Name + ": Arbeitsordner fehlt.");
+                throw new DirectoryNotFoundException(item.Name + L.T(": Arbeitsordner fehlt."));
         }
         public static string Start(ProgramEntry item) {
             Validate(item);
@@ -89,7 +89,7 @@ namespace RigPilot {
             if (item.SkipIfRunning && Path.GetExtension(file).Equals(".exe", StringComparison.OrdinalIgnoreCase)) {
                 foreach (Process p in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(file))) {
                     using (p) {
-                        try { if (String.Equals(p.MainModule.FileName, Path.GetFullPath(file), StringComparison.OrdinalIgnoreCase)) return item.Name + " läuft bereits – übersprungen."; } catch { }
+                        try { if (String.Equals(p.MainModule.FileName, Path.GetFullPath(file), StringComparison.OrdinalIgnoreCase)) return item.Name + L.T(" läuft bereits – übersprungen."); } catch { }
                     }
                 }
             }
@@ -98,7 +98,7 @@ namespace RigPilot {
             else if (File.Exists(file)) start.WorkingDirectory = Path.GetDirectoryName(file);
             if (item.RunAsAdmin) start.Verb = "runas";
             using (Process p = Process.Start(start)) { }
-            return item.Name + " gestartet.";
+            return item.Name + L.T(" gestartet.");
         }
         public static List<ProgramEntry> Discover() {
             List<ProgramEntry> result = new List<ProgramEntry>();
@@ -137,9 +137,9 @@ namespace RigPilot {
             var found = Discover();
             string[] names = { "SimHub", "Simucube Tuner", "PimaxEVO", "Steam", "Discord", "OBS Studio", "RaceLab", "CrewChiefV4" };
             foreach (string name in names) { var p = found.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)); if (p != null) data.Programs.Add(p); }
-            LaunchGroup sim = new LaunchGroup { Name = "Simracing", Description = "Lenkrad, Telemetrie und dein Rig." };
+            LaunchGroup sim = new LaunchGroup { Name = "Simracing", Description = L.T("Lenkrad, Telemetrie und dein Rig.") };
             foreach (var p in data.Programs.Where(x => x.Name == "SimHub" || x.Name == "Simucube Tuner")) sim.Items.Add(new GroupItem { ProgramId = p.Id, DelaySeconds = sim.Items.Count == 0 ? 0 : 3 });
-            LaunchGroup game = new LaunchGroup { Name = "Gaming", Description = "Spiele, Sound und dein Lieblingsbildschirm." };
+            LaunchGroup game = new LaunchGroup { Name = "Gaming", Description = L.T("Spiele, Sound und dein Lieblingsbildschirm.") };
             foreach (var p in data.Programs.Where(x => x.Name == "Steam" || x.Name == "Discord")) game.Items.Add(new GroupItem { ProgramId = p.Id, DelaySeconds = game.Items.Count == 0 ? 0 : 2 });
             data.Groups.Add(sim); data.Groups.Add(game);
         }

@@ -41,15 +41,18 @@ WizardStyle=modern
 
 [Languages]
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Desktop-Verknuepfung erstellen"; GroupDescription: "Verknuepfungen:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 ; Explicit allowlist. Never install or remove the user's Daten directory.
 Source: "{#PayloadDir}\RigPilot.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\ANLEITUNG.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\GUIDE.en.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\UPDATE.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\UPDATE.en.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\VERSION.json"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

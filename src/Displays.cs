@@ -31,11 +31,11 @@ namespace RigPilot {
         public int X, Y;
         public double Hz;
         public bool Primary;
-        public string Summary { get { return Width + " × " + Height + "  ·  " + Hz.ToString("0.##") + " Hz" + (Primary ? "  ·  Hauptanzeige" : ""); } }
+        public string Summary { get { return Width + " × " + Height + "  ·  " + Hz.ToString("0.##") + " Hz" + (Primary ? L.T("  ·  Hauptanzeige") : ""); } }
     }
     public class DisplaySnapshot {
         public string Id = Guid.NewGuid().ToString("N");
-        public string Name = "Monitor-Setup";
+        public string Name = L.T("Monitor-Setup");
         public string Captured = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
         public DisplayPath[] Paths;
         public DisplayMode[] Modes;
@@ -51,19 +51,19 @@ namespace RigPilot {
         static void Check(int result, string action) { if (result != 0) throw new Win32Exception(result, action + ": " + new Win32Exception(result).Message); }
         static TargetName NameOf(DisplayTarget target) {
             TargetName name = new TargetName { Header = new DeviceHeader { Type = 2, Size = (uint)Marshal.SizeOf(typeof(TargetName)), Adapter = target.Adapter, Id = target.Id } };
-            Check(DisplayConfigGetDeviceInfo(ref name), "Monitorname lesen"); return name;
+            Check(DisplayConfigGetDeviceInfo(ref name), L.T("Monitorname lesen")); return name;
         }
         static DisplaySnapshot Query(uint flags) {
             for (int attempt = 0; attempt < 5; attempt++) {
-                uint p, m; Check(GetDisplayConfigBufferSizes(flags, out p, out m), "Monitoranzahl lesen");
-                if (p > 4096 || m > 16384) throw new InvalidDataException("Unerwartete Anzahl von Monitorkonfigurationen.");
+                uint p, m; Check(GetDisplayConfigBufferSizes(flags, out p, out m), L.T("Monitoranzahl lesen"));
+                if (p > 4096 || m > 16384) throw new InvalidDataException(L.T("Unerwartete Anzahl von Monitorkonfigurationen."));
                 var paths = new DisplayPath[p]; var modes = new DisplayMode[m];
                 int result = QueryDisplayConfig(flags, ref p, paths, ref m, modes, IntPtr.Zero);
                 if (result == 122) continue;
-                Check(result, "Monitor-Setup lesen"); Array.Resize(ref paths, (int)p); Array.Resize(ref modes, (int)m);
+                Check(result, L.T("Monitor-Setup lesen")); Array.Resize(ref paths, (int)p); Array.Resize(ref modes, (int)m);
                 return new DisplaySnapshot { Paths = paths, Modes = modes };
             }
-            throw new InvalidOperationException("Die Monitorverbindungen ändern sich gerade. Bitte kurz warten und erneut versuchen.");
+            throw new InvalidOperationException(L.T("Die Monitorverbindungen ändern sich gerade. Bitte kurz warten und erneut versuchen."));
         }
         public static DisplaySnapshot Capture(string name) {
             DisplaySnapshot data = Query(2); data.Name = name;
@@ -78,11 +78,11 @@ namespace RigPilot {
                 b.Hz = path.Target.Refresh.Denominator == 0 ? 0 : (double)path.Target.Refresh.Numerator / path.Target.Refresh.Denominator;
                 data.Monitors.Add(b);
             }
-            if (data.Paths.Length == 0) throw new InvalidOperationException("Kein aktiver Desktop-Monitor gefunden.");
+            if (data.Paths.Length == 0) throw new InvalidOperationException(L.T("Kein aktiver Desktop-Monitor gefunden."));
             return data;
         }
         public static DisplaySnapshot Prepare(DisplaySnapshot saved) {
-            if (saved.Paths == null || saved.Modes == null || saved.Paths.Length == 0 || saved.Monitors.Count != saved.Paths.Length) throw new InvalidDataException("Unvollständiges Monitor-Setup.");
+            if (saved.Paths == null || saved.Modes == null || saved.Paths.Length == 0 || saved.Monitors.Count != saved.Paths.Length) throw new InvalidDataException(L.T("Unvollständiges Monitor-Setup."));
             DisplaySnapshot copy = Store.Clone(saved), available = Query(1);
             var names = new Dictionary<string, string>();
             foreach (var path in available.Paths) {
@@ -93,25 +93,25 @@ namespace RigPilot {
             var used = new HashSet<string>();
             for (int i = 0; i < copy.Paths.Length; i++) {
                 var old = copy.Paths[i]; string identity = copy.Monitors[i].DevicePath;
-                if (String.IsNullOrEmpty(identity)) throw new InvalidOperationException("Die Hardware-ID eines gespeicherten Monitors fehlt. Setup bitte erneut speichern.");
+                if (String.IsNullOrEmpty(identity)) throw new InvalidOperationException(L.T("Die Hardware-ID eines gespeicherten Monitors fehlt. Setup bitte erneut speichern."));
                 var matches = available.Paths.Where(x => x.Target.Available != 0 && String.Equals(names[x.Target.Adapter.Key + ":" + x.Target.Id], identity, StringComparison.OrdinalIgnoreCase)).ToList();
-                if (matches.Count == 0) throw new InvalidOperationException("Monitor nicht verbunden: " + copy.Monitors[i].Name);
+                if (matches.Count == 0) throw new InvalidOperationException(L.T("Monitor nicht verbunden: ") + copy.Monitors[i].Name);
                 string oldSourceKey = old.Source.Adapter.Key + ":" + old.Source.Id;
                 DisplaySource source;
                 DisplayPath selected;
                 if (sources.TryGetValue(oldSourceKey, out source)) {
                     var cloned = matches.Where(x => x.Source.Adapter.Key == source.Adapter.Key && x.Source.Id == source.Id).ToList();
-                    if (cloned.Count == 0) throw new InvalidOperationException("Die gespeicherte Duplizierung ist mit diesen Anschlüssen nicht verfügbar.");
+                    if (cloned.Count == 0) throw new InvalidOperationException(L.T("Die gespeicherte Duplizierung ist mit diesen Anschlüssen nicht verfügbar."));
                     selected = cloned[0];
                 } else {
                     var candidates = matches.Where(x => !used.Contains(x.Source.Adapter.Key + ":" + x.Source.Id)).OrderByDescending(x => x.Source.Id == old.Source.Id).ToList();
-                    if (candidates.Count == 0) throw new InvalidOperationException("Die Monitore können nicht eindeutig zugeordnet werden. Setup bitte erneut speichern.");
+                    if (candidates.Count == 0) throw new InvalidOperationException(L.T("Die Monitore können nicht eindeutig zugeordnet werden. Setup bitte erneut speichern."));
                     selected = candidates[0]; sources[oldSourceKey] = selected.Source; used.Add(selected.Source.Adapter.Key + ":" + selected.Source.Id);
                 }
                 old.Source.Adapter = selected.Source.Adapter; old.Source.Id = selected.Source.Id;
                 old.Target.Adapter = selected.Target.Adapter; old.Target.Id = selected.Target.Id;
                 old.Target.Available = 1; old.Flags = 1;
-                if (old.Source.ModeIndex >= copy.Modes.Length || old.Target.ModeIndex >= copy.Modes.Length) throw new InvalidDataException("Monitor-Modus fehlt im gespeicherten Setup.");
+                if (old.Source.ModeIndex >= copy.Modes.Length || old.Target.ModeIndex >= copy.Modes.Length) throw new InvalidDataException(L.T("Monitor-Modus fehlt im gespeicherten Setup."));
                 copy.Modes[old.Source.ModeIndex].Adapter = old.Source.Adapter; copy.Modes[old.Source.ModeIndex].Id = old.Source.Id;
                 copy.Modes[old.Target.ModeIndex].Adapter = old.Target.Adapter; copy.Modes[old.Target.ModeIndex].Id = old.Target.Id;
                 copy.Paths[i] = old;
@@ -119,16 +119,16 @@ namespace RigPilot {
             return copy;
         }
         public static void Validate(DisplaySnapshot saved) {
-            var ready = Prepare(saved); Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x40), "Monitor-Setup prüfen");
+            var ready = Prepare(saved); Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x40), L.T("Monitor-Setup prüfen"));
         }
         public static void Apply(DisplaySnapshot saved) {
             var ready = Prepare(saved);
-            Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x40), "Monitor-Setup prüfen");
+            Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x40), L.T("Monitor-Setup prüfen"));
             // Apply transiently. Persist only after the user confirms visibility.
-            Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x80), "Monitor-Setup anwenden");
+            Check(SetDisplayConfig((uint)ready.Paths.Length, ready.Paths, (uint)ready.Modes.Length, ready.Modes, 0x20 | 0x80), L.T("Monitor-Setup anwenden"));
         }
         public static void PersistCurrent() {
-            var now = Query(2); Check(SetDisplayConfig((uint)now.Paths.Length, now.Paths, (uint)now.Modes.Length, now.Modes, 0x20 | 0x80 | 0x200), "Monitor-Setup speichern");
+            var now = Query(2); Check(SetDisplayConfig((uint)now.Paths.Length, now.Paths, (uint)now.Modes.Length, now.Modes, 0x20 | 0x80 | 0x200), L.T("Monitor-Setup speichern"));
         }
         public static bool ClaimDecision(string dir, string decision) {
             try {
@@ -162,7 +162,7 @@ namespace RigPilot {
                 }
                 if (!ClaimDecision(dir, "restore")) { File.WriteAllText(Path.Combine(dir, "result"), "confirmed"); return 0; }
                 restore(); File.WriteAllText(Path.Combine(dir, "result"), "restored"); return 0;
-            } catch (Exception ex) { Store.Log("Monitor-Rückkehr fehlgeschlagen: " + ex.Message); File.WriteAllText(Path.Combine(dir, "result"), "error: " + ex.Message); return 1; }
+            } catch (Exception ex) { Store.Log(L.T("Monitor-Rückkehr fehlgeschlagen: ") + ex.Message); File.WriteAllText(Path.Combine(dir, "result"), "error: " + ex.Message); return 1; }
         }
     }
 }

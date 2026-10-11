@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 namespace RigPilot {
     public static class SelfTests {
         public static int Run(string outputDirectory) {
+            string originalLanguage=L.Language;L.Use("de");
             string root=Path.GetFullPath(outputDirectory);Directory.CreateDirectory(root);var results=new List<string>();int failed=0;
             Action<string,Action> test=delegate(string name,Action act){try{act();results.Add("PASS "+name);}catch(Exception ex){failed++;results.Add("FAIL "+name+": "+ex.Message);}};
             Action<bool> assert=delegate(bool condition){if(!condition)throw new Exception("Assertion failed");};
@@ -47,7 +48,56 @@ namespace RigPilot {
                 int code=Displays.RunGuard(dir,delegate{restored=true;},delegate{return now;},delegate{now=now.AddSeconds(1);if(now==start.AddSeconds(24))Displays.ClaimDecision(dir,"keep");if(now>start.AddSeconds(60))throw new Exception("Watchdog did not stop");});
                 assert(code==0);assert(!restored);assert(File.ReadAllText(Path.Combine(dir,"result"))=="confirmed");
             });
-            File.WriteAllLines(Path.Combine(root,"self-tests.txt"),results);return failed==0?0:1;
+            test("Both languages include valid format placeholders and embedded guides",delegate{
+                assert(L.English.Count>200);
+                foreach(var pair in L.English) {
+                    assert(!String.IsNullOrWhiteSpace(pair.Value));
+                    var pattern=@"\{[0-9]+\}";
+                    var de=System.Text.RegularExpressions.Regex.Matches(pair.Key,pattern).Cast<System.Text.RegularExpressions.Match>().Select(x=>x.Value).OrderBy(x=>x).ToArray();
+                    var en=System.Text.RegularExpressions.Regex.Matches(pair.Value,pattern).Cast<System.Text.RegularExpressions.Match>().Select(x=>x.Value).OrderBy(x=>x).ToArray();assert(de.SequenceEqual(en));
+                    String.Format(pair.Value,new object[]{25,"Test"});
+                }
+                foreach(string resource in new[]{"RigPilot.ANLEITUNG.txt","RigPilot.GUIDE.en.txt"})
+                    using(var stream=System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resource)) {assert(stream!=null&&stream.Length>1000);}
+            });
+            test("Language switch persists without touching legacy profiles and backups",delegate{
+                string previousRoot=Store.Root,previousLanguage=L.Language;
+                try {
+                    Store.Root=Path.Combine(root,"language-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(Store.Root);
+                    File.WriteAllText(Store.Config,"{\"Version\":1,\"Programs\":[{\"Id\":\"program-id\",\"Name\":\"Programme\",\"FileName\":\"C:\\\\Test.exe\"}],\"Groups\":[{\"Name\":\"Übersicht\",\"Description\":\"Mein Rig\",\"OutputId\":\"audio-id\",\"InputId\":\"mic-id\",\"DisplayId\":\"display-id\",\"Items\":[{\"ProgramId\":\"program-id\",\"DelaySeconds\":25}]}],\"Displays\":[]}");
+                    File.WriteAllText(Store.Config+".bak","existing-backup");var before=File.ReadAllBytes(Store.Config);var backup=File.ReadAllBytes(Store.Config+".bak");
+                    L.Save("en");L.Use("de");L.Load();assert(L.Language=="en");assert(L.T("Programme")=="Programs");
+                    var profile=Store.Load();assert(profile.Version==1);assert(profile.Programs[0].Name=="Programme");assert(profile.Groups[0].Name=="Übersicht");assert(profile.Groups[0].Description=="Mein Rig");assert(profile.Groups[0].OutputId=="audio-id");assert(profile.Groups[0].InputId=="mic-id");assert(profile.Groups[0].DisplayId=="display-id");assert(profile.Groups[0].Items[0].DelaySeconds==25);
+                    L.Save("de");L.Use("en");L.Load();assert(L.Language=="de");assert(before.SequenceEqual(File.ReadAllBytes(Store.Config)));assert(backup.SequenceEqual(File.ReadAllBytes(Store.Config+".bak")));
+                } finally {Store.Root=previousRoot;L.Use(previousLanguage);}
+            });
+            test("Missing unknown and damaged language preferences fall back safely",delegate{
+                string previousRoot=Store.Root,previousLanguage=L.Language;
+                try {
+                    Store.Root=Path.Combine(root,"language-fallback-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(Store.Root);
+                    L.Use("en");L.Load();assert(L.Language=="de");
+                    string path=Path.Combine(Store.Root,"language.json");
+                    foreach(string text in new[]{"{\"Language\":\"fr\"}","null","broken JSON"}) {File.WriteAllText(path,text);L.Use("en");L.Load();assert(L.Language=="de");assert(File.ReadAllText(path)==text);}
+                } finally {Store.Root=previousRoot;L.Use(previousLanguage);}
+            });
+            test("Failed language save preserves the active language",delegate{
+                string previousRoot=Store.Root,previousLanguage=L.Language;
+                try {
+                    Store.Root=Path.Combine(root,"language-blocked-"+Guid.NewGuid().ToString("N"));File.WriteAllText(Store.Root,"file blocks directory");L.Use("de");bool threw=false;
+                    try {L.Save("en");}catch(IOException){threw=true;}assert(threw);assert(L.Language=="de");
+                } finally {Store.Root=previousRoot;L.Use(previousLanguage);}
+            });
+            test("Localized validation and countdown preserve values and user names",delegate{
+                string previousLanguage=L.Language;
+                try {
+                    L.Use("en");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",Displays.ConfirmationSeconds)=="Reverting in 25 seconds unless you confirm.");
+                    assert(L.F("Startgruppe „{0}“ entfernen?","Übersicht")=="Remove launch group “Übersicht”?");
+                    bool threw=false;try{Launcher.Validate(new ProgramEntry{Name="Mein Programm",FileName=Path.Combine(root,"missing-localized.exe")});}catch(FileNotFoundException ex){threw=true;assert(ex.Message.Contains("Mein Programm: program or shortcut not found."));}assert(threw);
+                    assert(new LaunchGroup().Name=="New group");assert(new MonitorBinding{Primary=true}.Summary.Contains("Primary display"));assert(L.GuideFile=="GUIDE.en.txt");
+                    L.Use("de");assert(new LaunchGroup().Name=="Neue Gruppe");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",25).Contains("25 Sekunden"));assert(L.GuideFile=="ANLEITUNG.txt");
+                } finally {L.Use(previousLanguage);}
+            });
+            L.Use(originalLanguage);File.WriteAllLines(Path.Combine(root,"self-tests.txt"),results);return failed==0?0:1;
         }
     }
 }

@@ -16,6 +16,7 @@ RigPilot speichert Einstellungen im beschreibbaren Ordner `Daten` neben der EXE.
 
 ## Funktionen und Grenzen
 
+- Oberfläche und integrierte Kurzanleitung auf Deutsch oder Englisch; sofort umschaltbar unter **Sprache / Language** in der Seitenleiste. Die Auswahl bleibt beim Neustart erhalten, eigene Namen und Profile bleiben unverändert. English guide: [GUIDE.en.txt](GUIDE.en.txt), installation and updates: [UPDATE.en.txt](UPDATE.en.txt).
 - Klassische Windows-Autostarts prüfen und umschalten; einzelne Programme starten.
 - Startgruppen mit Reihenfolge, Pausen, Audio- und Monitorzuordnung.
 - Monitorwechsel mit 25 Sekunden Bestätigungszeit und unabhängigem Rückstellprozess.
@@ -45,3 +46,7 @@ Bei laufender EXE mit `-OutputPath` in eine separate Datei bauen. Logo-Dateien l
 Der Installer benötigt Inno Setup. Einrichtung, Prüfung und Veröffentlichung sind in [RELEASING.md](RELEASING.md) beschrieben. Falls Windows PowerShell Skripte blockiert, kann für den einzelnen Build-Prozess `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\package.ps1 -Installer` verwendet werden; dies ändert keine systemweite Richtlinie.
 
 Quellcode, Assets und Build-Rezepte gehören ins Repository. Persönliche Profile, Geräte-IDs, Logs, Sicherungen, lokale Übergabeunterlagen und fertige Builds sind ausgeschlossen. Downloads werden als Release-Dateien veröffentlicht.
+
+## Arbeit mit Codex Cloud
+
+Das GitHub-Repository ist die gemeinsame Grundlage für Cloud-Aufgaben und die Windows-Arbeitskopie. Codex Cloud kann den Quellcode bearbeiten und prüfen. Der vorhandene WPF-Build, die Selbsttests und der Installer benötigen Windows; die Cloud ersetzt außerdem keine Prüfung mit den echten Monitoren, Audiogeräten und der Sim-Hardware. Einrichtung, Projektregeln und Windows-Prüfbefehle stehen in [CLOUD.md](CLOUD.md).

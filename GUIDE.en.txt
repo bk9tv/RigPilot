@@ -1,0 +1,117 @@
+RIGPILOT 1.2 – YOUR SETUP. ONE CLICK.
+==================================
+
+Launch: double-click RigPilot.exe. The portable edition needs no installation.
+Keep the RigPilot folder together: settings and backups are stored in the
+Daten subfolder. The app requires Windows 11 x64 and .NET Framework 4.8 or
+later, which is included with Windows 11. The executable is not digitally signed.
+
+LANGUAGE
+Use Sprache / Language at the bottom of the sidebar to select Deutsch or
+English. The interface changes immediately and remembers your selection.
+Program, group and device names, descriptions, paths and existing profiles
+are preserved. New groups use the language selected when they are created.
+Windows dialogs and device or driver messages follow your Windows language.
+
+GETTING STARTED
+1. Under Programs, review the programs found. Discover imports more entries
+   from the Start menu. Alternatively, add an EXE or shortcut. Each program
+   has its own launch button.
+2. Simracing and Gaming are provided as initial groups, with any matching
+   applications found in the Start menu. Edit opens the program selection,
+   order, delays, audio devices and display setup.
+3. Audio and displays default to Leave unchanged in new groups. Select the
+   desired devices or saved setups explicitly.
+4. Check validates program paths and the display setup without switching.
+   If displays will be switched, audio devices are checked afterward so
+   that HDMI audio, for example, has time to become available.
+5. Launch applies the display setup and asks for confirmation, switches
+   audio, then starts programs in order. Each delay occurs BEFORE its launch.
+
+STARTUP
+The switches manage classic Run/Run32 registry entries and files in startup
+folders. The original entries remain intact. The app changes the
+StartupApproved status that Windows maintains for these entries.
+Unknown status values are displayed but remain read-only.
+Changes take effect at the next Windows sign-in. Running apps are not closed,
+and enabling an entry does not launch it immediately; use the play button.
+
+A JSON backup of the previous state is created before each change.
+Restore backup loads it and protects any changes made since that backup.
+Entries for all users require Windows administrator confirmation (UAC).
+Only the small change operation is elevated; the main app runs normally.
+The app does not start itself automatically with Windows.
+
+Not included: scheduled tasks, services, RunOnce, vendor-specific launchers,
+Store/MSIX StartupTasks or Windows reopening apps after sign-in.
+Use Windows ↗ to manage additional startup settings. Some apps may later
+reset their own startup settings.
+
+LAUNCH GROUPS AND PROGRAMS
+Add, edit and remove groups and programs. A program can belong to several
+groups. Use the arrows to change the order. Delays range from 0 to 300 seconds
+before each program. EXE, LNK and URL files, as well as Steam and Epic launcher
+URLs, are supported. When importing from the Start menu, EXE targets are
+resolved where possible.
+Already-running programs are detected by their full EXE path. Detection may
+be limited for shortcuts, launcher URLs and protected processes. In those
+cases, the respective application decides what happens.
+A launch message confirms that the request was passed to Windows; it does
+not confirm that hardware or a game is ready. Use longer delays for sim tools
+if needed. Cancel stops pending launches; it does not close programs already
+started.
+
+AUDIO
+Active playback and recording devices are displayed. Select assigns the
+default, multimedia and communications roles for the chosen device type.
+A group can choose playback and microphone devices independently.
+Switching uses Windows' undocumented PolicyConfig interface. Windows updates
+may change its behavior. Errors are displayed and written to the log.
+Apps with a fixed audio source keep their own setting.
+Not included: volume, EQ, per-app device assignments or an audio mixer.
+
+DISPLAYS
+Configure the desired setup in Windows Display settings: active displays,
+primary display, position, resolution, orientation and refresh rate.
+Then use Displays > Save current setup and choose a name such as Desktop or
+Sim rig. Repeat for your second setup. Saved setups become available in
+launch groups and can also be applied directly.
+The active desktop state is saved. Displays not included in the saved state
+are not activated when applying it. Missing target displays stop the switch.
+
+After switching, click Yes, keep changes within 25 seconds. The 25 seconds
+start only when the confirmation dialog becomes visible. Without confirmation,
+the previous setup is restored. An independent watchdog uses the same deadline,
+even if the interface crashes. If the switch stalls before the dialog appears,
+recovery starts after at most 45 seconds.
+Changed connections or a driver error can also prevent recovery; use Windows
+Display settings in that case.
+
+Not saved: HDR, Windows DPI scaling, color space, ICC profiles, NVIDIA Surround
+configuration or VR/HMD settings. Pimax software can be launched as a program;
+headset configuration remains in the Pimax software.
+
+DATA, BACKUPS AND LOGS
+Daten\profile.json: programs, groups and display snapshots.
+Daten\profile.json.bak: previous version of the profile file.
+Daten\language.json: interface language (separate from profiles).
+Daten\Autostart-Sicherungen: original states of each startup switch.
+Daten\Monitor-Rueckkehr: states saved before display changes.
+Daten\protokoll.txt: launch messages and errors.
+The app sends no data and uses no background service. To back up, copy the
+entire RigPilot folder. Reselect machine-specific devices and program paths
+when moving to another PC.
+
+DEVELOPMENT
+Source code is in src. build.ps1 uses the Windows C# compiler.
+RigPilot.exe --diagnose "C:\Path\diagnostics.json" reads devices and validates
+the current display setup without changing audio, displays or startup settings.
+RigPilot.exe --self-test "C:\Path\Tests" checks the data format and core logic.
+The internal --startup, --restore-startup and --guard options are used by the
+interface only for individually requested actions.
+
+TECHNICAL REFERENCES
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setdisplayconfig
+https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys
+https://github.com/tartakynov/audioswitch/blob/master/IPolicyConfig.h
