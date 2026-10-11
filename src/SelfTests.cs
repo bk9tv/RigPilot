@@ -97,6 +97,7 @@ namespace RigPilot {
                     L.Use("de");assert(new LaunchGroup().Name=="Neue Gruppe");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",25).Contains("25 Sekunden"));assert(L.GuideFile=="ANLEITUNG.txt");
                 } finally {L.Use(previousLanguage);}
             });
+            WorkflowTests.Add(test,assert);
             L.Use(originalLanguage);File.WriteAllLines(Path.Combine(root,"self-tests.txt"),results);return failed==0?0:1;
         }
     }

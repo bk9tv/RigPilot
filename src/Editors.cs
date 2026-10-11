@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -78,9 +79,50 @@ namespace RigPilot {
             var add=UI.Button(L.T("+ Hinzufügen"),delegate{captureDelays();string id=UI.Selected(library);if(String.IsNullOrEmpty(id))return;if(group.Items.Any(x=>x.ProgramId==id))throw new InvalidOperationException(L.T("Dieses Programm ist bereits in der Gruppe."));group.Items.Add(new GroupItem{ProgramId=id,DelaySeconds=group.Items.Count==0?0:2});render();});add.Margin=new Thickness(8,0,0,0);var addrow=new DockPanel();DockPanel.SetDock(add,Dock.Right);addrow.Children.Add(add);addrow.Children.Add(library);form.Children.Add(addrow);
             form.Children.Add(UI.Label(L.T("Wiedergabegerät")));var output=UI.Choices(AudioChoices(0,group.OutputId),group.OutputId);form.Children.Add(output);
             form.Children.Add(UI.Label(L.T("Mikrofon")));var input=UI.Choices(AudioChoices(1,group.InputId),group.InputId);form.Children.Add(input);
+            var wave=group.WaveLink??new WaveLinkProfile();
+            var useWave=new CheckBox{Content=L.T("Audio über Wave Link 3 steuern"),IsChecked=wave.Enabled,Margin=new Thickness(0,18,0,8)};form.Children.Add(useWave);
+            var wavePanel=new StackPanel();form.Children.Add(wavePanel);
+            var waveStatus=UI.Text(L.T("Wave Link öffnen und die verfügbaren Geräte und Mixe laden."),12,"#9AAABD");wavePanel.Children.Add(waveStatus);
+            var loadWave=UI.Button(L.T("Wave-Link-Auswahl laden"),delegate{});wavePanel.Children.Add(loadWave);
+            Func<IEnumerable<Choice>,string,List<Choice>> choices=delegate(IEnumerable<Choice> values,string selected){
+                var list=new List<Choice>{new Choice{Id="",Name=L.T("Unverändert lassen")}};list.AddRange(values);
+                if(!String.IsNullOrEmpty(selected)&&!list.Any(x=>x.Id==selected))list.Add(new Choice{Id=selected,Name=L.T("Gespeicherte Auswahl (noch nicht verfügbar)")});return list;
+            };
+            string outputKey=String.IsNullOrEmpty(wave.OutputId)?"":WaveLinkControl.OutputKey(wave.OutputDeviceId,wave.OutputId);
+            wavePanel.Children.Add(UI.Label(L.T("Wave Link · Hauptausgang (Main Output Device)")));var waveOutput=UI.Choices(choices(new Choice[0],outputKey),outputKey);wavePanel.Children.Add(waveOutput);
+            wavePanel.Children.Add(UI.Label(L.T("Wave Link · Mikrofon-Mix (z. B. Discord Mix)")));var waveMix=UI.Choices(choices(new Choice[0],wave.MixId),wave.MixId);wavePanel.Children.Add(waveMix);
+            wavePanel.Children.Add(UI.Label(L.T("Mikrofon in diesem Mix aktivieren")));var waveMic=UI.Choices(choices(new Choice[0],wave.MicChannelId),wave.MicChannelId);wavePanel.Children.Add(waveMic);
+            wavePanel.Children.Add(UI.Label(L.T("Anderes Mikrofon in diesem Mix stummschalten (optional)")));var waveMute=UI.Choices(choices(new Choice[0],wave.MutedChannelId),wave.MutedChannelId);wavePanel.Children.Add(waveMute);
+            Action waveMode=delegate{wavePanel.Visibility=useWave.IsChecked==true?Visibility.Visible:Visibility.Collapsed;output.IsEnabled=input.IsEnabled=useWave.IsChecked!=true;};
+            useWave.Checked+=delegate{waveMode();};useWave.Unchecked+=delegate{waveMode();};waveMode();
+            WaveLinkState waveState=null;var waveCancel=new CancellationTokenSource();var waveToken=waveCancel.Token;w.Closed+=delegate{waveCancel.Cancel();waveCancel.Dispose();};
+            loadWave.Click+=async delegate{
+                loadWave.IsEnabled=false;
+                try {
+                    using(var client=await WaveLinkClient.Open(waveToken)) {
+                        waveState=await WaveLinkControl.Read(client,waveToken);
+                        Action<ComboBox,IEnumerable<Choice>> fill=delegate(ComboBox box,IEnumerable<Choice> values){string selected=UI.Selected(box);var list=choices(values,selected);box.ItemsSource=list;box.SelectedItem=list.FirstOrDefault(x=>x.Id==selected)??list[0];};
+                        fill(waveOutput,waveState.Outputs.outputDevices.SelectMany(d=>(d.outputs??new List<WaveLinkOutput>()).Select(o=>new Choice{Id=WaveLinkControl.OutputKey(d.id,o.id),Name=d.Label()+" · "+o.Label()})));
+                        fill(waveMix,waveState.Mixes.mixes.Select(x=>new Choice{Id=x.id,Name=x.Label()}));
+                        var channels=waveState.Channels.channels.Select(x=>new Choice{Id=x.id,Name=x.Label()}).ToList();fill(waveMic,channels);fill(waveMute,channels);
+                        waveStatus.Text=L.T("Wave Link verbunden. Hauptausgang, Mix und Mikrofone auswählen.");
+                    }
+                }catch(OperationCanceledException){}catch(Exception ex){waveStatus.Text=ex.Message;Store.Log("Wave Link: "+ex.Message);}finally{loadWave.IsEnabled=true;}
+            };
             form.Children.Add(UI.Label(L.T("Monitor-Setup")));var displayChoices=new List<Choice>{new Choice{Id="",Name=L.T("Unverändert lassen")}};displayChoices.AddRange(data.Displays.Select(x=>new Choice{Id=x.Id,Name=x.Name}));var display=UI.Choices(displayChoices,group.DisplayId);form.Children.Add(display);
-            var hint=UI.Text(L.T("Ablauf: Monitor-Setup bestätigen → Audio umstellen → Programme starten. Neue Monitor-Setups speicherst du im Bereich Monitore."),12,"#9AAABD");hint.Margin=new Thickness(0,14,0,0);form.Children.Add(hint);
-            buttons.Children.Add(UI.Button(L.T("Gruppe speichern"),delegate{captureDelays();if(String.IsNullOrWhiteSpace(name.Text))throw new InvalidOperationException(L.T("Bitte einen Gruppennamen eingeben."));group.Name=name.Text.Trim();group.Description=desc.Text.Trim();group.OutputId=UI.Selected(output);group.InputId=UI.Selected(input);group.DisplayId=UI.Selected(display);if(existing==null)data.Groups.Add(group);else data.Groups[data.Groups.IndexOf(existing)]=group;Save();w.DialogResult=true;},true));
+            var hint=UI.Text(L.T("Wave Link: Monitor-Setup bestätigen → Programme starten → Audio setzen. Windows-Audio: Audio vor den Programmen; bei Fehlern danach erneut versuchen. Neue Monitor-Setups speicherst du unter Monitore."),12,"#9AAABD");hint.Margin=new Thickness(0,14,0,0);form.Children.Add(hint);
+            buttons.Children.Add(UI.Button(L.T("Gruppe speichern"),delegate{
+                captureDelays();if(String.IsNullOrWhiteSpace(name.Text))throw new InvalidOperationException(L.T("Bitte einen Gruppennamen eingeben."));
+                var selectedWave=new WaveLinkProfile{Enabled=useWave.IsChecked==true,MixId=UI.Selected(waveMix),MicChannelId=UI.Selected(waveMic),MutedChannelId=UI.Selected(waveMute)};
+                string key=UI.Selected(waveOutput);if(!String.IsNullOrEmpty(key)){var pair=Store.Serializer().Deserialize<string[]>(key);selectedWave.OutputDeviceId=pair[0];selectedWave.OutputId=pair[1];}
+                if(selectedWave.Enabled) {
+                    if((!String.IsNullOrEmpty(selectedWave.MicChannelId)||!String.IsNullOrEmpty(selectedWave.MutedChannelId))&&String.IsNullOrEmpty(selectedWave.MixId))throw new InvalidOperationException(L.T("Bitte einen verfügbaren Wave-Link-Mix für die Mikrofone auswählen."));
+                    if(!String.IsNullOrEmpty(selectedWave.MicChannelId)&&selectedWave.MicChannelId==selectedWave.MutedChannelId)throw new InvalidOperationException(L.T("Ein Mikrofon kann nicht gleichzeitig aktiviert und stummgeschaltet werden."));
+                    if(waveState!=null)WaveLinkControl.Validate(selectedWave,waveState);
+                }
+                group.Name=name.Text.Trim();group.Description=desc.Text.Trim();group.OutputId=UI.Selected(output);group.InputId=UI.Selected(input);group.DisplayId=UI.Selected(display);group.WaveLink=selectedWave;
+                if(existing==null)data.Groups.Add(group);else data.Groups[data.Groups.IndexOf(existing)]=group;Save();w.DialogResult=true;
+            },true));
             buttons.Children.Add(UI.Button(L.T("Abbrechen"),delegate{w.DialogResult=false;}));w.Content=root;w.ShowDialog();ShowPage(page);
         }
     }

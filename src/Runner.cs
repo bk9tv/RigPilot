@@ -20,7 +20,17 @@ namespace RigPilot {
             }
             if(!String.IsNullOrEmpty(group.DisplayId)) {
                 var setup=data.Displays.FirstOrDefault(x=>x.Id==group.DisplayId);if(setup==null)throw new InvalidOperationException(L.T("Das Monitor-Setup der Gruppe fehlt."));Displays.Validate(setup);
-            } else ValidateAudio(group);
+            } else if(group.WaveLink==null||!group.WaveLink.Enabled)ValidateAudio(group);
+        }
+        async void CheckGroupAndReport(LaunchGroup group) {
+            try {
+                CheckGroup(group);
+                if(group.WaveLink!=null&&group.WaveLink.Enabled) {
+                    using(var client=await WaveLinkClient.Open(CancellationToken.None))
+                        WaveLinkControl.Validate(group.WaveLink,await WaveLinkControl.Read(client,CancellationToken.None));
+                }
+                UI.Message(L.T("Programmpfade und ausgewähltes Setup sind gültig. Es wurde nichts gestartet oder umgestellt.")+(String.IsNullOrEmpty(group.DisplayId)?"":L.T("\nAudio wird nach dem Monitorwechsel erneut geprüft.")),L.T("RigPilot · Gruppe geprüft"));
+            }catch(Exception ex){UI.Error(ex);}
         }
         void ValidateAudio(LaunchGroup group) {
             if(!String.IsNullOrEmpty(group.OutputId)&&!Audio.List(0).Any(x=>x.Id==group.OutputId))throw new InvalidOperationException(L.T("Das Wiedergabegerät der Gruppe ist nicht verfügbar."));
@@ -31,7 +41,7 @@ namespace RigPilot {
         }
         void RunGroup(LaunchGroup group) {
             if(busy)return;
-            CheckGroup(group);busy=true;cancellation=new CancellationTokenSource();var token=cancellation.Token;
+            busy=true;cancellation=new CancellationTokenSource();var token=cancellation.Token;
             var w=UI.Dialog(this,L.T("Startgruppe · ")+group.Name,620,470);bool finished=false;
             var root=new DockPanel {Margin=new Thickness(26)};var top=new StackPanel();top.Children.Add(UI.Text(group.Name,26,"#F0F4FA",true));var progress=UI.Text(L.T("Setup wird vorbereitet …"),13,"#81E0B6");progress.Margin=new Thickness(0,8,0,18);top.Children.Add(progress);DockPanel.SetDock(top,Dock.Top);root.Children.Add(top);
             var bottom=new StackPanel {Margin=new Thickness(0,16,0,0)};var close=UI.Button(L.T("Abbrechen"),delegate{if(finished)w.Close();else {cancellation.Cancel();progress.Text=L.T("Ausstehende Starts werden abgebrochen …");}});bottom.Children.Add(close);var note=UI.Text(L.T("Abbrechen stoppt ausstehende Starts. Bereits gestartete Programme bleiben geöffnet."),11,"#9AAABD");note.Margin=new Thickness(0,10,0,0);bottom.Children.Add(note);DockPanel.SetDock(bottom,Dock.Bottom);root.Children.Add(bottom);
@@ -39,24 +49,24 @@ namespace RigPilot {
             Action<string> report=delegate(string line){log.AppendText(line+Environment.NewLine+Environment.NewLine);log.ScrollToEnd();Store.Log(group.Name+": "+line);};
             w.Closing+=delegate(object sender,System.ComponentModel.CancelEventArgs e){if(!finished){e.Cancel=true;cancellation.Cancel();}};
             w.Loaded+=async delegate {
-                int failures=0;
                 try {
                     if(!String.IsNullOrEmpty(group.DisplayId)) {
                         report(L.T("Monitor-Setup wird angewendet …"));
                         if(!await ApplyDisplay(data.Displays.First(x=>x.Id==group.DisplayId),w))throw new OperationCanceledException(L.T("Monitorwechsel nicht bestätigt. Gruppenstart gestoppt."));
                         report(L.T("Monitor-Setup bestätigt."));
                     }
-                    token.ThrowIfCancellationRequested();await WaitForAudio(group,token);
-                    if(!String.IsNullOrEmpty(group.OutputId)){Audio.SetDefault(group.OutputId,0);report(L.T("Wiedergabegerät umgestellt."));}
-                    if(!String.IsNullOrEmpty(group.InputId)){Audio.SetDefault(group.InputId,1);report(L.T("Mikrofon umgestellt."));}
-                    for(int i=0;i<group.Items.Count;i++) {
-                        var step=group.Items[i];var app=data.Programs.First(x=>x.Id==step.ProgramId);
-                        for(int sec=step.DelaySeconds;sec>0;sec--){progress.Text=L.F("Warte {0} s vor {1} …",sec,app.Name);await Task.Delay(1000,token);}
-                        token.ThrowIfCancellationRequested();progress.Text=(i+1)+" / "+group.Items.Count+" · "+app.Name;
-                        try{report(Launcher.Start(app));}catch(Exception ex){failures++;report(L.T("Nicht gestartet: ")+app.Name+" · "+ex.Message);}
-                        await Task.Delay(120,token);
-                    }
-                    progress.Text=failures==0?L.T("✓  Dein Setup ist bereit."):L.F("Abgeschlossen mit {0} Startfehler(n).",failures);SetStatus(group.Name+": "+progress.Text);
+                    report(L.F("{0} Programm(e) in der Startgruppe.",group.Items.Count));
+                    var result=await GroupRunner.Run(data,group,token,report,delegate(string text){progress.Text=text;},async delegate(CancellationToken audioToken){
+                        if(group.WaveLink!=null&&group.WaveLink.Enabled) {
+                            await WaveLinkControl.ApplyLocal(group.WaveLink,audioToken);
+                            report(L.T("Wave-Link-Audio-Profil übernommen."));
+                        } else {
+                            await WaitForAudio(group,audioToken);
+                            if(!String.IsNullOrEmpty(group.OutputId)){Audio.SetDefault(group.OutputId,0);report(L.T("Wiedergabegerät umgestellt."));}
+                            if(!String.IsNullOrEmpty(group.InputId)){Audio.SetDefault(group.InputId,1);report(L.T("Mikrofon umgestellt."));}
+                        }
+                    });
+                    progress.Text=result.IssueCount==0?L.T("✓  Dein Setup ist bereit."):L.F("Abgeschlossen mit {0} Fehler(n). Details stehen im Protokoll.",result.IssueCount);SetStatus(group.Name+": "+progress.Text);
                 } catch(OperationCanceledException){progress.Text=L.T("Gruppenstart abgebrochen.");report(L.T("Weitere Schritte wurden gestoppt."));SetStatus(group.Name+L.T(": abgebrochen."));}
                 catch(Exception ex){progress.Text=L.T("Gruppenstart gestoppt.");report(ex.Message);SetStatus(group.Name+": "+ex.Message);}
                 finally{finished=true;close.Content=L.T("Schließen");RefreshHardware();}

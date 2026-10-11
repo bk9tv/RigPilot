@@ -6,6 +6,17 @@ Verwende `bk9tv/RigPilot` und den für die Aufgabe gewählten Branch. Lies vor �
 
 Quellcodeänderungen werden über GitHub zwischen Cloud und Windows ausgetauscht. Vor einem Windows-Build den betreffenden Commit beziehungsweise PR-Branch beziehen. Noch nicht eingecheckte lokale Änderungen sind in einer Cloud-Aufgabe nicht verfügbar. Lokale Betriebsunterlagen sind absichtlich von Git ausgeschlossen; diese Datei enthält die für Cloud-Aufgaben relevanten Projektregeln.
 
+## Cloud und „Rig Pilot lokal“ synchron halten
+
+Beide Arbeitskopien verwenden `bk9tv/RigPilot` als gemeinsame Quellcodebasis. Änderungen an Wave Link und Gruppenstarts liegen zunächst auf `codex/wave-link-gruppenstart`. Für die Bearbeitung desselben Arbeitsstands in Cloud und Windows denselben Branch und denselben Commit verwenden. Nach abgeschlossener Prüfung werden Änderungen über einen PR in `main` übernommen; ein Push allein aktualisiert die installierte Windows-EXE nicht.
+
+- Zu Beginn jeder Aufgabe `git status --short` prüfen, lokale Änderungen erhalten und `git fetch origin` ausführen. Den gewählten Branch anschließend nur mit `git pull --ff-only` aktualisieren. Bei abweichender Historie oder lokalen Konflikten zunächst die Änderungen sichern und den Konflikt nachvollziehbar lösen; kein Force-Push, Reset oder Löschen lokaler Arbeit zum Synchronisieren.
+- Zum Ende einer Quellcodeänderung die passenden Prüfungen ausführen, die Änderungen committen und auf den gemeinsamen Arbeitsbranch pushen. Den vollständigen Commit nennen, damit die andere Arbeitskopie denselben Stand beziehen kann. Fehlt Schreibzugriff, den nicht übertragenen Stand ausdrücklich melden.
+- Vor einem Windows-Build den übertragenen Commit beziehen und mit `git rev-parse HEAD` vergleichen. Windows-Ergebnisse und verbleibende Geräteprüfungen wahrheitsgemäß dokumentieren. Neue Quellcodekorrekturen auf demselben Branch zurückübertragen.
+- Synchronisation betrifft Quellcode, Assets und Build-Anweisungen. Persönliche Profile, Geräte-IDs, Logs, Sicherungen und Builds bleiben lokal und außerhalb von Git. Eine vorhandene Installation nur nach den Windows-Prüfschritten aktualisieren und ihren Ordner `Daten` erhalten.
+
+Diese Schritte werden bei Aufgabenbeginn und -ende ausgeführt. Es gibt keinen dauerhaften Synchronisationsdienst. Eine Cloud-Sitzung besitzt keinen Zugriff auf den Windows-PC oder andere lokale Codex-Projekte, sofern keine solche Verbindung ausdrücklich als Werkzeug bereitgestellt wird. Die lokale Übernahme erfolgt in einer Sitzung auf dem Windows-PC nach `WINDOWS-PRUEFUNG.md`.
+
 ## Umgebung einrichten
 
 Für Codebearbeitung und Reviews sind keine zusätzlichen Pakete, Secrets oder Hintergrunddienste erforderlich. RigPilot verwendet keine NuGet-Pakete. Das Installationsskript kann leer bleiben. Die App während der Einrichtung nicht starten und keine persönlichen Profile oder Gerätedaten hochladen.

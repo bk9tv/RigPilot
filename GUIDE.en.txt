@@ -1,4 +1,4 @@
-RIGPILOT 1.2 – YOUR SETUP. ONE CLICK.
+RIGPILOT 1.3 – YOUR SETUP. ONE CLICK.
 ==================================
 
 Launch: double-click RigPilot.exe. The portable edition needs no installation.
@@ -26,7 +26,9 @@ GETTING STARTED
    If displays will be switched, audio devices are checked afterward so
    that HDMI audio, for example, has time to become available.
 5. Launch applies the display setup and asks for confirmation, switches
-   audio, then starts programs in order. Each delay occurs BEFORE its launch.
+   audio, then starts programs in order. Wave Link profiles launch programs
+   before configuring audio. Each delay occurs BEFORE its launch. Individual
+   program or audio errors are reported and do not block the remaining starts.
 
 STARTUP
 The switches manage classic Run/Run32 registry entries and files in startup
@@ -60,6 +62,9 @@ A launch message confirms that the request was passed to Windows; it does
 not confirm that hardware or a game is ready. Use longer delays for sim tools
 if needed. Cancel stops pending launches; it does not close programs already
 started.
+Missing programs and invalid paths appear in the group window and in
+Daten\protokoll.txt. Failed Windows audio is retried after program launches.
+An unconfirmed display switch still stops the group and restores the displays.
 
 AUDIO
 Active playback and recording devices are displayed. Select assigns the
@@ -69,6 +74,23 @@ Switching uses Windows' undocumented PolicyConfig interface. Windows updates
 may change its behavior. Errors are displayed and written to the log.
 Apps with a fixed audio source keep their own setting.
 Not included: volume, EQ, per-app device assignments or an audio mixer.
+
+WAVE LINK 3
+Edit a group and enable Control audio through Wave Link 3. Open Wave Link,
+then click Load Wave Link choices. Select the Main Output Device, microphone
+mix and microphone to enable in that mix. Optionally mute another microphone
+in the same mix. Other mixes and global mute states are preserved. Unmute
+a globally muted microphone in Wave Link first. Saved Windows audio choices
+are retained and are not applied while Wave Link mode is enabled.
+Sim rig: Pimax Crystal headphones, Discord Mix and the sim rig microphone.
+Gaming: speakers, Discord Mix and the RØDE microphone. Optionally mute the
+other microphone in that mix. Discord must use the matching Wave Link mix
+as its input, rather than a fixed physical microphone.
+Add Wave Link and Pimax software to the group first if they need to start.
+The audio profile is applied afterward and the resulting state is verified.
+After partial failures, RigPilot attempts to restore the previous audio state.
+Check reads Wave Link devices without changing them. Wave Link 3 is required;
+the older Wave Link 1/2 interface is not supported.
 
 DISPLAYS
 Configure the desired setup in Windows Display settings: active displays,
@@ -98,7 +120,8 @@ Daten\language.json: interface language (separate from profiles).
 Daten\Autostart-Sicherungen: original states of each startup switch.
 Daten\Monitor-Rueckkehr: states saved before display changes.
 Daten\protokoll.txt: launch messages and errors.
-The app sends no data and uses no background service. To back up, copy the
+The app uses no background service of its own. Wave Link profiles communicate
+locally with Wave Link on the same PC. To back up, copy the
 entire RigPilot folder. Reselect machine-specific devices and program paths
 when moving to another PC.
 

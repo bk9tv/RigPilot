@@ -27,6 +27,7 @@ namespace RigPilot {
         public string OutputId = "";
         public string InputId = "";
         public string DisplayId = "";
+        public WaveLinkProfile WaveLink = new WaveLinkProfile();
         public List<GroupItem> Items = new List<GroupItem>();
     }
     public class Settings {
@@ -79,7 +80,7 @@ namespace RigPilot {
             string file = Environment.ExpandEnvironmentVariables(item.FileName);
             Uri uri;
             bool protocol = Uri.TryCreate(file, UriKind.Absolute, out uri) && !uri.IsFile && (uri.Scheme == "steam" || uri.Scheme == "com.epicgames.launcher");
-            if (!protocol && !File.Exists(file)) throw new FileNotFoundException(item.Name + L.T(": Programm oder Verknüpfung fehlt."), file);
+            if (!protocol && !File.Exists(file)) throw new FileNotFoundException(item.Name + L.T(": Programm oder Verknüpfung fehlt.") + Environment.NewLine + file, file);
             if (!String.IsNullOrWhiteSpace(item.WorkingDirectory) && !Directory.Exists(Environment.ExpandEnvironmentVariables(item.WorkingDirectory)))
                 throw new DirectoryNotFoundException(item.Name + L.T(": Arbeitsordner fehlt."));
         }

@@ -178,9 +178,9 @@ namespace RigPilot {
             var desc = UI.Text(group.Description,12,"#9AAABD"); desc.Margin = new Thickness(0,4,0,10); p.Children.Add(desc);
             var names = group.Items.Select(x=>data.Programs.FirstOrDefault(y=>y.Id==x.ProgramId)).Where(x=>x!=null).Select(x=>x.Name).ToList();
             p.Children.Add(UI.Text(names.Count==0?L.T("Noch keine Programme ausgewählt"):String.Join("  ·  ",names),12,"#C5D1E2"));
-            var badges = UI.Text((String.IsNullOrEmpty(group.OutputId)&&String.IsNullOrEmpty(group.InputId)?L.T("Audio unverändert"):L.T("Audio-Profil")) + "   /   " + (String.IsNullOrEmpty(group.DisplayId)?L.T("Monitore unverändert"):L.T("Monitor-Setup")),11,"#81E0B6"); badges.Margin=new Thickness(0,8,0,12); p.Children.Add(badges);
+            var badges = UI.Text((group.WaveLink!=null&&group.WaveLink.Enabled?L.T("Wave-Link-Audio-Profil"):(String.IsNullOrEmpty(group.OutputId)&&String.IsNullOrEmpty(group.InputId)?L.T("Audio unverändert"):L.T("Audio-Profil"))) + "   /   " + (String.IsNullOrEmpty(group.DisplayId)?L.T("Monitore unverändert"):L.T("Monitor-Setup")),11,"#81E0B6"); badges.Margin=new Thickness(0,8,0,12); p.Children.Add(badges);
             var edit=UI.Button(L.T("Bearbeiten"),delegate { EditGroup(group); }); edit.Padding=new Thickness(10,5,10,5); edit.FontSize=11;
-            var check=UI.Button(L.T("Prüfen"),delegate { CheckGroup(group); UI.Message(L.T("Programmpfade und ausgewähltes Setup sind gültig. Es wurde nichts gestartet oder umgestellt.")+(String.IsNullOrEmpty(group.DisplayId)?"":L.T("\nAudio wird nach dem Monitorwechsel erneut geprüft.")),L.T("RigPilot · Gruppe geprüft")); }); check.Padding=new Thickness(10,5,10,5); check.FontSize=11;
+            var check=UI.Button(L.T("Prüfen"),delegate { CheckGroupAndReport(group); }); check.Padding=new Thickness(10,5,10,5); check.FontSize=11;
             if(page=="groups") { var remove=UI.Button(L.T("Entfernen"),delegate { if(UI.Message(L.F("Startgruppe „{0}“ entfernen?",group.Name), "RigPilot",MessageBoxButton.YesNo)==MessageBoxResult.Yes) { data.Groups.Remove(group); Save(); ShowPage(page); } }); remove.FontSize=11; remove.Padding=new Thickness(10,5,10,5); p.Children.Add(UI.Row(edit,check,remove)); } else p.Children.Add(UI.Row(edit,check));
             content.Children.Add(p); body.Children.Add(UI.Card(content));
         }

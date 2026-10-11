@@ -18,11 +18,23 @@ RigPilot speichert Einstellungen im beschreibbaren Ordner `Daten` neben der EXE.
 
 - Oberfläche und integrierte Kurzanleitung auf Deutsch oder Englisch; sofort umschaltbar unter **Sprache / Language** in der Seitenleiste. Die Auswahl bleibt beim Neustart erhalten, eigene Namen und Profile bleiben unverändert. English guide: [GUIDE.en.txt](GUIDE.en.txt), installation and updates: [UPDATE.en.txt](UPDATE.en.txt).
 - Klassische Windows-Autostarts prüfen und umschalten; einzelne Programme starten.
-- Startgruppen mit Reihenfolge, Pausen, Audio- und Monitorzuordnung.
+- Startgruppen mit Reihenfolge, Pausen, Audio- und Monitorzuordnung; einzelne Programm- oder Audiofehler blockieren die übrigen Programmstarts nicht.
+- Wave Link 3: Hauptausgang auswählen und Mikrofone gezielt in einem Mix aktivieren beziehungsweise stummschalten.
 - Monitorwechsel mit 25 Sekunden Bestätigungszeit und unabhängigem Rückstellprozess.
 - Lokale Profile mit atomarer Speicherung und Sicherung.
 
-Die App wirkt auf dem PC, auf dem sie läuft. Sie bietet keine Fernsteuerung. HDR, DPI-Skalierung, ICC-Profile, NVIDIA Surround und VR-Konfiguration sind nicht enthalten. Audio-Umschaltung nutzt die nicht öffentlich dokumentierte Windows-PolicyConfig-Schnittstelle. Hardwarefunktionen müssen auf dem jeweiligen Ziel-PC geprüft werden; Selbsttests ersetzen diese Prüfung nicht.
+Die App wirkt auf dem PC, auf dem sie läuft. Sie bietet keine Fernsteuerung. HDR, DPI-Skalierung, ICC-Profile, NVIDIA Surround und VR-Konfiguration sind nicht enthalten. Windows-Audio-Umschaltung nutzt die nicht öffentlich dokumentierte PolicyConfig-Schnittstelle; Wave-Link-Profile verwenden die lokale JSON-RPC-Schnittstelle von Wave Link 3. Hardwarefunktionen müssen auf dem jeweiligen Ziel-PC geprüft werden; Selbsttests ersetzen diese Prüfung nicht.
+
+## Wave Link für Simrig und Gaming
+
+In jeder Gruppe **Bearbeiten → Audio über Wave Link 3 steuern → Wave-Link-Auswahl laden** verwenden. Wave Link muss für die Auswahl geöffnet sein. Geräte werden vom jeweiligen PC geladen; vorhandene Windows-Audioauswahlen bleiben gespeichert und werden im Wave-Link-Modus nicht angewendet.
+
+- **Simrig:** Als Main Output Device die Pimax-Crystal-Kopfhörer wählen, als Mix den eigenen Discord Mix und das gewünschte Simrig-Mikrofon unter „Mikrofon in diesem Mix aktivieren“. Optional das RØDE-Mikrofon in diesem Mix stummschalten.
+- **Gaming:** Boxen als Hauptausgang, denselben Discord Mix und RØDE als aktives Mikrofon wählen. Optional das Simrig-Mikrofon in diesem Mix stummschalten.
+
+Wave Link und benötigte Pimax-Software bei Bedarf zuerst in die Programmliste der Gruppe aufnehmen. Bei Wave-Link-Profilen werden nach der Monitorbestätigung zuerst die Programme gestartet und danach die Audioauswahl gesetzt. Andere Mixe und die globale Mikrofon-Stummschaltung bleiben unverändert. Discord muss seinen Eingang in den Discord Mix von Wave Link routen; ein fest ausgewähltes physisches Mikrofon in Discord wird durch das Profil nicht geändert. Wave Link 1/2 verwendet eine andere Schnittstelle und wird von diesen Profilen nicht unterstützt.
+
+Ein fehlender Programmpfad wird mit Name und Pfad im Gruppenfenster und unter `Daten/protokoll.txt` angezeigt; nachfolgende Programme werden trotzdem gestartet. Audiofehler werden ebenfalls gemeldet. Windows-Audio wird bei einem Fehler nach den Programmstarts erneut versucht, damit neu gestartete Geräte verfügbar werden können. Ein unbestätigter Monitorwechsel stoppt weiterhin die Gruppe und stellt die vorherigen Monitore zurück.
 
 ## Entwicklung
 

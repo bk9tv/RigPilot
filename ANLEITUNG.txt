@@ -1,4 +1,4 @@
-RIGPILOT 1.2 – DEIN SETUP. EIN KLICK.
+RIGPILOT 1.3 – DEIN SETUP. EIN KLICK.
 ==================================
 
 Start: RigPilot.exe doppelt anklicken. Keine Installation nötig.
@@ -27,7 +27,9 @@ ERSTE SCHRITTE
    Bei einem Monitorwechsel werden Audiogeräte erst danach geprüft, damit
    z. B. HDMI-Audio Zeit hat, verfügbar zu werden.
 5. Starten: Monitor-Setup anwenden und bestätigen, Audio setzen, Programme
-   nacheinander starten. Die Pause gilt jeweils VOR dem betreffenden Start.
+   nacheinander starten. Bei Wave Link zuerst Programme, dann Audio.
+   Die Pause gilt jeweils VOR dem betreffenden Start. Ein einzelner Programm-
+   oder Audiofehler blockiert die übrigen Starts nicht; Fehler werden gemeldet.
 
 AUTOSTART
 Die Schalter verwalten klassische Run-/Run32-Registry-Einträge und Dateien
@@ -60,6 +62,10 @@ diese Erkennung eingeschränkt sein. Dann entscheidet die jeweilige App.
 Die Startmeldung bestätigt die Übergabe an Windows, keine Betriebsbereitschaft
 einer Hardware oder eines Spiels. Für Sim-Tools ggf. längere Pausen einstellen.
 Abbrechen beendet weitere Starts, nicht bereits gestartete Anwendungen.
+Fehlende Programme und ungültige Pfade stehen mit dem betroffenen Eintrag im
+Gruppenfenster und in Daten\protokoll.txt. Windows-Audio wird bei Fehlern nach
+den Programmstarts erneut versucht. Ein nicht bestätigter Monitorwechsel
+stoppt weiterhin die Gruppe und stellt das vorherige Monitor-Setup wieder her.
 
 AUDIO
 Aktive Wiedergabe- und Aufnahmegeräte werden angezeigt. Auswählen setzt
@@ -70,6 +76,24 @@ dokumentierte PolicyConfig-Schnittstelle. Windows-Updates können deren
 Verhalten ändern. Fehler werden angezeigt und im Protokoll festgehalten.
 Anwendungen mit einer fest ausgewählten Audioquelle behalten ihre Einstellung.
 Nicht enthalten: Lautstärke, EQ, pro App zugewiesene Geräte oder ein Audiomixer.
+
+WAVE LINK 3
+In der Gruppe Bearbeiten > Audio über Wave Link 3 steuern aktivieren.
+Wave Link öffnen und Wave-Link-Auswahl laden anklicken. Hauptausgang,
+Mikrofon-Mix und das darin zu aktivierende Mikrofon auswählen. Optional ein
+anderes Mikrofon nur in diesem Mix stummschalten. Andere Mixe und globale
+Stummschaltungen bleiben erhalten. Ein global stummes Mikrofon zuerst in
+Wave Link freigeben. Bereits gespeicherte Windows-Audiozuordnungen werden
+im Wave-Link-Modus nicht angewendet und gehen nicht verloren.
+Simrig: Pimax-Crystal-Kopfhörer als Main Output Device, Discord Mix und das
+Simrig-Mikrofon aktivieren. Gaming: Boxen, Discord Mix und RØDE-Mikrofon.
+Bei Bedarf jeweils das andere Mikrofon in diesem Mix stummschalten.
+Discord muss als Eingang den passenden Wave-Link-Mix verwenden.
+Wave Link und Pimax-Software bei Bedarf zuerst in der Gruppe starten lassen;
+danach wird das Audio-Profil angewendet und der übernommene Zustand geprüft.
+Bei Teilfehlern versucht RigPilot die vorherige Audioauswahl zurückzustellen.
+Prüfen liest Wave-Link-Geräte ohne Änderungen. Es wird Wave Link 3 benötigt;
+die ältere Schnittstelle von Wave Link 1/2 wird nicht unterstützt.
 
 MONITORE
 In den Windows-Anzeigeeinstellungen das gewünschte Setup einrichten:
@@ -99,7 +123,8 @@ Daten\language.json: Sprache der Oberfläche (getrennt von den Profilen).
 Daten\Autostart-Sicherungen: ursprüngliche Zustände jedes Schalters.
 Daten\Monitor-Rueckkehr: Zustände vor einem Monitorwechsel.
 Daten\protokoll.txt: Startmeldungen und Fehlermeldungen.
-Die App sendet keine Daten und verwendet keinen Hintergrunddienst.
+Die App verwendet keinen eigenen Hintergrunddienst. Wave-Link-Profile
+kommunizieren nur lokal mit Wave Link auf demselben PC.
 Zum Sichern den ganzen RigPilot-Ordner kopieren. Maschinengebundene Geräte-
 und Programmpfade auf einem anderen PC neu auswählen.
 
