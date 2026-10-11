@@ -119,7 +119,7 @@ namespace RigPilot {
             };
             var help = UI.Button(L.T("Kurzanleitung  ↗"), delegate { UI.OpenGuide(this); }); help.FontSize = 11; help.Margin = new Thickness(0,0,0,8); foot.Children.Add(help);
             var folder = UI.Button(L.T("Daten & Sicherungen"), delegate { Directory.CreateDirectory(Store.Root); UI.Open(Store.Root); }); folder.FontSize = 11; folder.Margin = new Thickness(0,0,0,15); foot.Children.Add(folder);
-            foot.Children.Add(UI.Text(L.T("●  Lokal auf deinem PC"), 11, "#81E0B6")); foot.Children.Add(UI.Text("Version 1.2 · Windows 11", 10, "#778A9F")); DockPanel.SetDock(foot, Dock.Bottom); side.Children.Add(foot);
+            foot.Children.Add(UI.Text(L.T("●  Lokal auf deinem PC"), 11, "#81E0B6")); foot.Children.Add(UI.Text("Version " + typeof(App).Assembly.GetName().Version.ToString(2) + " · Windows 11", 10, "#778A9F")); DockPanel.SetDock(foot, Dock.Bottom); side.Children.Add(foot);
             nav = new StackPanel { Margin = new Thickness(12, 0, 12, 0) }; side.Children.Add(new ScrollViewer { Content = nav, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled }); root.Children.Add(side);
             var right = new DockPanel { Margin = new Thickness(30, 23, 26, 16) }; Grid.SetColumn(right, 1); root.Children.Add(right);
             var bottom = new Border { BorderThickness = new Thickness(0, 1, 0, 0), BorderBrush = UI.Brush("#2B3646"), Padding = new Thickness(0, 12, 0, 0), Margin = new Thickness(0, 10, 0, 0) };
