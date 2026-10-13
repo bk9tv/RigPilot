@@ -11,7 +11,7 @@ using System.Windows.Markup;
 
 [assembly: AssemblyTitle("RigPilot")]
 [assembly: AssemblyDescription("Autostart, Startgruppen, Audio und Monitor-Setups für Windows 11")]
-[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyVersion("1.4.0.0")]
 namespace RigPilot {
     public static class App {
         public static string EntryPath { get { return Assembly.GetExecutingAssembly().Location; } }

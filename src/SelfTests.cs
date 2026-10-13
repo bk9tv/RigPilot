@@ -25,27 +25,28 @@ namespace RigPilot {
             test("Steam URL accepted as launcher target",delegate{Launcher.Validate(new ProgramEntry{Name="Steam game",FileName="steam://rungameid/250820"});});
             test("Running executable is skipped without starting another instance",delegate{assert(Launcher.Start(new ProgramEntry{Name="Test runner",FileName=App.EntryPath,SkipIfRunning=true}).Contains("übersprungen"));});
             test("Confirmation and monitor timeout have exactly one winner",delegate{string dir=Path.Combine(root,"race-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(dir);int winners=0;System.Threading.Tasks.Parallel.For(0,32,delegate(int i){if(Displays.ClaimDecision(dir,i%2==0?"keep":"restore"))System.Threading.Interlocked.Increment(ref winners);});assert(winners==1);assert(new[]{"keep","restore"}.Contains(File.ReadAllText(Path.Combine(dir,"decision"))));});
-            test("A slow monitor switch does not shorten the 25-second confirmation",delegate{
+            test("A slow monitor switch does not shorten the 60-second confirmation",delegate{
+                assert(Displays.ConfirmationSeconds==60);
                 string dir=Path.Combine(root,"countdown-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(dir);
                 DateTime start=new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc),now=start,restored=DateTime.MinValue;
                 int code=Displays.RunGuard(dir,delegate{restored=now;},delegate{return now;},delegate{
                     now=now.AddSeconds(1);
                     if(now==start.AddSeconds(30))Store.Write(Path.Combine(dir,"confirmation-deadline.json"),now.AddSeconds(Displays.ConfirmationSeconds).Ticks);
-                    if(now>start.AddSeconds(70))throw new Exception("Watchdog did not stop");
+                    if(now>start.AddSeconds(105))throw new Exception("Watchdog did not stop");
                 });
-                assert(code==0);assert(restored==start.AddSeconds(55));assert(File.ReadAllText(Path.Combine(dir,"result"))=="restored");
+                assert(code==0);assert(restored==start.AddSeconds(90));assert(File.ReadAllText(Path.Combine(dir,"result"))=="restored");
             });
             test("A crashed UI before the confirmation dialog still rolls back",delegate{
                 string dir=Path.Combine(root,"no-dialog-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(dir);
                 DateTime start=new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc),now=start;bool restored=false;
                 int code=Displays.RunGuard(dir,delegate{restored=true;},delegate{return now;},delegate{now=now.AddSeconds(1);if(now>start.AddSeconds(60))throw new Exception("Watchdog did not stop");});
-                assert(code==0);assert(restored);assert(now>=start.AddSeconds(25)&&now<=start.AddSeconds(60));
+                assert(code==0);assert(restored);assert(now==start.AddSeconds(45));
             });
             test("Confirmation just before timeout prevents rollback",delegate{
                 string dir=Path.Combine(root,"keep-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(dir);
                 DateTime start=new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc),now=start;bool restored=false;
                 Store.Write(Path.Combine(dir,"confirmation-deadline.json"),now.AddSeconds(Displays.ConfirmationSeconds).Ticks);
-                int code=Displays.RunGuard(dir,delegate{restored=true;},delegate{return now;},delegate{now=now.AddSeconds(1);if(now==start.AddSeconds(24))Displays.ClaimDecision(dir,"keep");if(now>start.AddSeconds(60))throw new Exception("Watchdog did not stop");});
+                int code=Displays.RunGuard(dir,delegate{restored=true;},delegate{return now;},delegate{now=now.AddSeconds(59);Displays.ClaimDecision(dir,"keep");if(now>start.AddSeconds(60))throw new Exception("Watchdog did not stop");});
                 assert(code==0);assert(!restored);assert(File.ReadAllText(Path.Combine(dir,"result"))=="confirmed");
             });
             test("Both languages include valid format placeholders and embedded guides",delegate{
@@ -90,14 +91,15 @@ namespace RigPilot {
             test("Localized validation and countdown preserve values and user names",delegate{
                 string previousLanguage=L.Language;
                 try {
-                    L.Use("en");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",Displays.ConfirmationSeconds)=="Reverting in 25 seconds unless you confirm.");
+                    L.Use("en");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",Displays.ConfirmationSeconds)=="Reverting in 60 seconds unless you confirm.");
                     assert(L.F("Startgruppe „{0}“ entfernen?","Übersicht")=="Remove launch group “Übersicht”?");
                     bool threw=false;try{Launcher.Validate(new ProgramEntry{Name="Mein Programm",FileName=Path.Combine(root,"missing-localized.exe")});}catch(FileNotFoundException ex){threw=true;assert(ex.Message.Contains("Mein Programm: program or shortcut not found."));}assert(threw);
                     assert(new LaunchGroup().Name=="New group");assert(new MonitorBinding{Primary=true}.Summary.Contains("Primary display"));assert(L.GuideFile=="GUIDE.en.txt");
-                    L.Use("de");assert(new LaunchGroup().Name=="Neue Gruppe");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",25).Contains("25 Sekunden"));assert(L.GuideFile=="ANLEITUNG.txt");
+                    L.Use("de");assert(new LaunchGroup().Name=="Neue Gruppe");assert(L.F("Ohne Bestätigung geht es in {0} Sekunden zurück.",Displays.ConfirmationSeconds).Contains("60 Sekunden"));assert(L.GuideFile=="ANLEITUNG.txt");
                 } finally {L.Use(previousLanguage);}
             });
             WorkflowTests.Add(test,assert);
+            GroupSwitchTests.Add(test,assert);
             L.Use(originalLanguage);File.WriteAllLines(Path.Combine(root,"self-tests.txt"),results);return failed==0?0:1;
         }
     }

@@ -1,4 +1,6 @@
-# RigPilot 1.3 unter Windows prüfen und übernehmen
+# RigPilot unter Windows prüfen und übernehmen
+
+Stand 1.4: Gruppenwechsel schließen Programme anderer Gruppen regulär, sofern sie nicht in der Zielgruppe gebraucht werden. Das geschieht erst nach einer gegebenenfalls notwendigen Monitorbestätigung. Schließfehler werden gemeldet und blockieren die Zielgruppe nicht; es gibt kein zwangsweises Beenden. Der sichtbare Monitor-Dialog bietet jetzt 60 Sekunden Bestätigungszeit. Die 45-Sekunden-Rückstellung vor Erscheinen des Dialogs bleibt erhalten.
 
 Die Cloud-Änderungen erweitern Startgruppen um Wave Link 3 und verhindern, dass ein einzelner Programm- oder Audiofehler alle weiteren Programmstarts blockiert. Ein unbestätigter Monitorwechsel stoppt weiterhin die Gruppe und aktiviert die Rückstellung.
 

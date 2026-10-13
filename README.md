@@ -19,13 +19,16 @@ RigPilot speichert Einstellungen im beschreibbaren Ordner `Daten` neben der EXE.
 - Oberfläche und integrierte Kurzanleitung auf Deutsch oder Englisch; sofort umschaltbar unter **Sprache / Language** in der Seitenleiste. Die Auswahl bleibt beim Neustart erhalten, eigene Namen und Profile bleiben unverändert. English guide: [GUIDE.en.txt](GUIDE.en.txt), installation and updates: [UPDATE.en.txt](UPDATE.en.txt).
 - Klassische Windows-Autostarts prüfen und umschalten; einzelne Programme starten.
 - Startgruppen mit Reihenfolge, Pausen, Audio- und Monitorzuordnung; einzelne Programm- oder Audiofehler blockieren die übrigen Programmstarts nicht.
+- Beim Gruppenwechsel Programme der anderen Gruppen regulär schließen; gemeinsam verwendete Programme bleiben geöffnet.
 - Wave Link 3: Hauptausgang auswählen und Mikrofone gezielt in einem Mix aktivieren beziehungsweise stummschalten.
-- Monitorwechsel mit 25 Sekunden Bestätigungszeit und unabhängigem Rückstellprozess.
+- Monitorwechsel mit 60 Sekunden Bestätigungszeit und unabhängigem Rückstellprozess.
 - Lokale Profile mit atomarer Speicherung und Sicherung.
 
 Die App wirkt auf dem PC, auf dem sie läuft. Sie bietet keine Fernsteuerung. HDR, DPI-Skalierung, ICC-Profile, NVIDIA Surround und VR-Konfiguration sind nicht enthalten. Windows-Audio-Umschaltung nutzt die nicht öffentlich dokumentierte PolicyConfig-Schnittstelle; Wave-Link-Profile verwenden die lokale JSON-RPC-Schnittstelle von Wave Link 3. Hardwarefunktionen müssen auf dem jeweiligen Ziel-PC geprüft werden; Selbsttests ersetzen diese Prüfung nicht.
 
 ## Wave Link für Simrig und Gaming
+
+Beim Start einer Gruppe werden nach der Monitorbestätigung zuerst die Programme anderer Gruppen geschlossen, die in der Zielgruppe nicht verwendet werden. Die Zuordnung erfolgt über den vollständigen EXE-Pfad, auch bei verschiedenen Bibliothekseinträgen oder EXE-Verknüpfungen. Steam erhält seinen regulären Beenden-Befehl. Andere Programme erhalten eine normale Fenster-Schließen-Anforderung; bleiben sie etwa im Infobereich oder wegen eines Dialogs offen, wird das gemeldet und die Zielgruppe trotzdem gestartet. Prozesse werden nicht zwangsweise beendet. Launcher-URLs lassen sich nicht zuverlässig einem zu schließenden Prozess zuordnen. Programme außerhalb der Startgruppen bleiben unberührt. Das gilt auch beim ersten Gruppenstart nach einem RigPilot-Neustart; es wird kein Profilformat geändert.
 
 In jeder Gruppe **Bearbeiten → Audio über Wave Link 3 steuern → Wave-Link-Auswahl laden** verwenden. Wave Link muss für die Auswahl geöffnet sein. Geräte werden vom jeweiligen PC geladen; vorhandene Windows-Audioauswahlen bleiben gespeichert und werden im Wave-Link-Modus nicht angewendet.
 

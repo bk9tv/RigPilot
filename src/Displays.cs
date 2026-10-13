@@ -42,7 +42,7 @@ namespace RigPilot {
         public List<MonitorBinding> Monitors = new List<MonitorBinding>();
     }
     public static class Displays {
-        public const int ConfirmationSeconds = 25;
+        public const int ConfirmationSeconds = 60;
         const int PreparationTimeoutSeconds = 45;
         [DllImport("user32.dll")] static extern int GetDisplayConfigBufferSizes(uint flags, out uint paths, out uint modes);
         [DllImport("user32.dll")] static extern int QueryDisplayConfig(uint flags, ref uint pathCount, [Out] DisplayPath[] paths, ref uint modeCount, [Out] DisplayMode[] modes, IntPtr topology);
@@ -143,7 +143,7 @@ namespace RigPilot {
             return RunGuard(dir, delegate { Apply(previous); }, delegate { return DateTime.UtcNow; }, delegate { Thread.Sleep(150); });
         }
         internal static int RunGuard(string dir, Action restore, Func<DateTime> now, Action pause) {
-            // Allow a slow driver switch, then count the same 25 seconds as the visible dialog.
+            // Allow a slow driver switch, then count the same 60 seconds as the visible dialog.
             // The independent process still restores the previous layout if the UI freezes.
             try {
                 DateTime until = now().AddSeconds(PreparationTimeoutSeconds);

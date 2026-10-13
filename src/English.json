@@ -249,5 +249,16 @@
   "Wave-Link-Audio-Profil übernommen.": "Wave Link audio profile applied.",
   "Wave-Link-Auswahl laden": "Load Wave Link choices",
   "Wave-Link-Rückstellung fehlgeschlagen: ": "Wave Link restoration failed: ",
-  "{0} Programm(e) in der Startgruppe.": "{0} program(s) in the launch group."
+  "{0} Programm(e) in der Startgruppe.": "{0} program(s) in the launch group.",
+  "Schließe {0} …": "Closing {0} …",
+  "Nicht geschlossen: ": "Not closed: ",
+  "Die Datei konnte nicht als Steam-Client erkannt werden.": "The file could not be identified as the Steam client.",
+  "Für diesen Starttyp ist kein zuverlässiges automatisches Schließen möglich.": "This launch type cannot be closed automatically with a reliable process match.",
+  "RigPilot selbst wird nicht automatisch geschlossen.": "RigPilot itself will not be closed automatically.",
+  "Der laufende Prozess konnte nicht sicher dem Programmpfad zugeordnet werden.": "The running process could not be safely matched to the program path.",
+  " ist nicht aktiv – nichts zu schließen.": " is not running – nothing to close.",
+  "Das Programm bleibt geöffnet (z. B. im Infobereich oder mit einem offenen Dialog). Es wird nicht zwangsweise beendet.": "The program is still open (for example in the system tray or with a pending dialog). It will not be forcibly terminated.",
+  " geschlossen.": " closed.",
+  "Ausstehende Schritte werden abgebrochen …": "Cancelling pending steps …",
+  "Abbrechen stoppt ausstehende Schritte. Bereits geschlossene Programme bleiben beendet; gestartete bleiben geöffnet.": "Cancel stops pending steps. Closed programs stay closed; programs already launched stay open."
 }

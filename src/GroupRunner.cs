@@ -6,17 +6,28 @@ using System.Threading.Tasks;
 namespace RigPilot {
     public class GroupRunResult {
         public int StartFailures;
+        public int CloseFailures;
         public bool AudioFailed;
-        public int IssueCount { get { return StartFailures + (AudioFailed ? 1 : 0); } }
+        public int IssueCount { get { return StartFailures + CloseFailures + (AudioFailed ? 1 : 0); } }
     }
     // Keep the launch sequence independent of the window so failures and cancellation are testable.
     public static class GroupRunner {
         public static async Task<GroupRunResult> Run(Settings settings, LaunchGroup group, CancellationToken token,
             Action<string> report, Action<string> progress, Func<CancellationToken, Task> configureAudio,
-            Func<ProgramEntry, string> start = null, Func<int, CancellationToken, Task> delay = null) {
+            Func<ProgramEntry, string> start = null, Func<int, CancellationToken, Task> delay = null,
+            Func<ProgramEntry, CancellationToken, Task<string>> close = null) {
             start = start ?? Launcher.Start;
             delay = delay ?? Task.Delay;
+            close = close ?? delegate(ProgramEntry entry, CancellationToken closeToken) { return ProgramCloser.Close(entry, closeToken); };
             var result = new GroupRunResult();
+            // The window invokes this only after the monitor setup has been confirmed.
+            foreach (var entry in ProgramCloser.OtherGroupPrograms(settings, group)) {
+                token.ThrowIfCancellationRequested();
+                progress(L.F("Schließe {0} …", entry.Name));
+                try { report(await close(entry, token)); }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex) { result.CloseFailures++; report(L.T("Nicht geschlossen: ") + entry.Name + " · " + ex.Message); }
+            }
             bool waveLink = group.WaveLink != null && group.WaveLink.Enabled;
             Func<Task> audio = async delegate {
                 token.ThrowIfCancellationRequested();

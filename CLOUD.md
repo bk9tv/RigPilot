@@ -8,7 +8,7 @@ Quellcodeänderungen werden über GitHub zwischen Cloud und Windows ausgetauscht
 
 ## Cloud und „Rig Pilot lokal“ synchron halten
 
-Beide Arbeitskopien verwenden `bk9tv/RigPilot` als gemeinsame Quellcodebasis. Änderungen an Wave Link und Gruppenstarts liegen zunächst auf `codex/wave-link-gruppenstart`; die andere Arbeitskopie kann sie erst nach erfolgreichem Push oder einer Git-Bundle-Übernahme beziehen. Für die Bearbeitung desselben Arbeitsstands in Cloud und Windows denselben Branch und denselben Commit verwenden. Nach abgeschlossener Prüfung werden Änderungen über einen PR in `main` übernommen; ein Push allein aktualisiert die installierte Windows-EXE nicht.
+Beide Arbeitskopien verwenden `bk9tv/RigPilot` als gemeinsame Quellcodebasis. Die lokale Windows-Arbeitskopie ist die führende Entwicklungsumgebung; Änderungen werden von dort auf `codex/wave-link-gruppenstart` gepusht und in der bestehenden Cloud-Aufgabe bezogen. Die Cloud soll dabei keine parallelen Änderungen beginnen. Für die Bearbeitung desselben Arbeitsstands in Cloud und Windows denselben Branch und denselben Commit verwenden. Nach abgeschlossener Prüfung werden Änderungen über einen PR in `main` übernommen; ein Push allein aktualisiert die installierte Windows-EXE nicht.
 
 - Zu Beginn jeder Aufgabe `git status --short` prüfen, lokale Änderungen erhalten und `git fetch origin` ausführen. Den gewählten Branch anschließend nur mit `git pull --ff-only` aktualisieren. Bei abweichender Historie oder lokalen Konflikten zunächst die Änderungen sichern und den Konflikt nachvollziehbar lösen; kein Force-Push, Reset oder Löschen lokaler Arbeit zum Synchronisieren.
 - Zum Ende einer Quellcodeänderung die passenden Prüfungen ausführen, die Änderungen committen und auf den gemeinsamen Arbeitsbranch pushen. Den vollständigen Commit nennen, damit die andere Arbeitskopie denselben Stand beziehen kann. Fehlt Schreibzugriff, den nicht übertragenen Stand ausdrücklich melden.
@@ -30,7 +30,8 @@ Vor dem Veröffentlichen der Umgebung Repository-Zugriff und vorhandene Build-Ei
 ## Verbindliche Projektregeln
 
 - Native Windows-WPF-App, .NET Framework 4.8+, C# 5. `build.ps1` verwendet den Windows-Framework-Compiler. Keine Framework- oder Sprachmigration als Nebenwirkung der Cloud-Einrichtung.
-- Die 25-sekündige Monitor-Bestätigung beginnt mit dem sichtbaren Dialog. Der unabhängige Rückstellprozess und die Frist vor Erscheinen des Dialogs müssen erhalten bleiben.
+- Die 60-sekündige Monitor-Bestätigung beginnt mit dem sichtbaren Dialog. Der unabhängige Rückstellprozess und die 45-Sekunden-Frist vor Erscheinen des Dialogs müssen erhalten bleiben.
+- Gruppenwechsel schließen nur Programme anderer Gruppen mit eindeutig zugeordnetem EXE-Pfad; gemeinsame Programme bleiben geöffnet. Reguläres Schließen verwenden, niemals Prozesse zwangsweise beenden. Ein Schließfehler wird gemeldet und blockiert keine nachfolgenden Schritte. Ohne Monitorbestätigung dürfen keine Programme geschlossen oder gestartet werden.
 - Vorhandene Profile und Sicherungen erhalten. Datenformatänderungen benötigen eine kompatible Migration. Die Sprachwahl liegt getrennt von `profile.json`; eigene Namen, Pfade und Geräte-IDs werden nicht übersetzt.
 - Relevante Logikänderungen mit den vorhandenen Selbsttests unter Windows prüfen. UI-Änderungen unter Windows visuell prüfen. Selbsttests verändern keine realen Geräte und ersetzen keine Hardwareabnahme.
 - `Daten/`, `Pruefung/`, `PC-Sicherung/`, Umzugspakete, persönliche Profile, Geräte-IDs, Logs und EXE-Builds bleiben außerhalb von Git. Ausschließlich künstliche Daten für Prüfungen verwenden.
